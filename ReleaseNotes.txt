@@ -1,1 +1,14 @@
-Hydrogen version - first public release.
+Helium version:
+ Build #19 - 
+  - linux compiling errors fixed;
+  - wallet: view keys;
+  - wallet: keys backup while new wallet creation;
+  - minor changes;
+  
+Hydrogen version:
+ Build #18
+  - First checkpoins;
+  - Minor fixes;
+ Build #17
+  - First public release;
+ 

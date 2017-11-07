@@ -116,7 +116,7 @@ namespace CryptoNote
       std::stringstream ss;
       ss << std::setfill('0') << std::setw(8) << std::hex << std::noshowbase;
       for (const auto& pe : pl) {
-        ss << pe.id << "\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
+        ss << pe.id << "\t\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
       }
       return ss.str();
     }
@@ -1196,7 +1196,8 @@ namespace CryptoNote
     std::list<PeerlistEntry> pl_wite;
     std::list<PeerlistEntry> pl_gray;
     m_peerlist.get_peerlist_full(pl_gray, pl_wite);
-    logger(INFO) << ENDL << "Peerlist white:" << ENDL << print_peerlist_to_string(pl_wite) << ENDL << "Peerlist gray:" << ENDL << print_peerlist_to_string(pl_gray) ;
+    logger(INFO,BRIGHT_GREEN)  << "Peerlist white:" << ENDL << print_peerlist_to_string(pl_wite);
+    logger(INFO,BRIGHT_YELLOW) << "Peerlist gray:" << ENDL << print_peerlist_to_string(pl_gray);
     return true;
   }
   //-----------------------------------------------------------------------------------

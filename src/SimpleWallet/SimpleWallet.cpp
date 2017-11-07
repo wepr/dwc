@@ -434,10 +434,46 @@ void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& tx
 
   logger(INFO, rowColor) << " "; //just to make logger print one endline
 }
-
-std::string prepareWalletAddressFilename(const std::string& walletBaseName) {
-  return walletBaseName + ".address";
+///////////////////////////////////////////////////////////////////////////////
+std::string prepareWalletBackupFilename(const std::string& walletBaseName) 
+{
+	return walletBaseName + ".backup.txt";
 }
+///////////////////////////////////////////////////////////////////////////////
+bool writeBackupFile
+	(
+	const std::string& backupFilename, 
+	const std::string& address,
+	const std::string& wall,
+	const std::string& pass,
+	const std::string& vsk,
+	const std::string& ssk,
+	const std::string& vpk,
+	const std::string& spk
+	) 
+{
+	std::ofstream backupFile(backupFilename, std::ios::out | std::ios::trunc | std::ios::binary);
+	if (!backupFile.good()) 
+	{
+		return false;
+	}
+
+	backupFile << "Print this file or save at removable media\r\n";
+	backupFile << "YOU MUST KEEP THIS DATA PRIVATE OR YOUR FUNDS COULD BE STOLEN\r\n";
+	backupFile << "-------------------------------------------------------------\r\n";
+	backupFile << 
+		wall << " - wallet file\r\n" << 
+		pass << " - password\r\n" << 
+		address << " - address\r\n" << 
+		vsk << " - view secret key\r\n" << 
+		ssk << " - spend secret key\r\n" << 
+		vpk << " - view public key\r\n" << 
+		spk << " - spend public key\r\n";
+	backupFile << "-------------------------------------------------------------\r\n";
+
+	return true;
+}
+///////////////////////////////////////////////////////////////////////////////
 
 bool writeAddressFile(const std::string& addressFilename, const std::string& address) {
   std::ofstream addressFile(addressFilename, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -558,17 +594,20 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   m_consoleHandler.setHandler("start_mining", boost::bind(&simple_wallet::start_mining, this, _1), "start_mining [<number_of_threads>] - Start mining in daemon");
   m_consoleHandler.setHandler("stop_mining", boost::bind(&simple_wallet::stop_mining, this, _1), "Stop mining in daemon");
   //m_consoleHandler.setHandler("refresh", boost::bind(&simple_wallet::refresh, this, _1), "Resynchronize transactions and balance");
-  m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
+  m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet's balance");
   m_consoleHandler.setHandler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
   m_consoleHandler.setHandler("list_transfers", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
   m_consoleHandler.setHandler("payments", boost::bind(&simple_wallet::show_payments, this, _1), "payments <payment_id_1> [<payment_id_2> ... <payment_id_N>] - Show payments <payment_id_1>, ... <payment_id_N>");
+  m_consoleHandler.setHandler("top", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
   m_consoleHandler.setHandler("bc_height", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
   m_consoleHandler.setHandler("transfer", boost::bind(&simple_wallet::transfer, this, _1),
     "transfer <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [-p payment_id] [-f fee]"
     " - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. "
     "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
   m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
-  m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet public address");
+  m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet's public address");
+  m_consoleHandler.setHandler("keys", boost::bind(&simple_wallet::print_keys, this, _1), "Show current wallet's keys");
+  m_consoleHandler.setHandler("seed", boost::bind(&simple_wallet::print_seed, this, _1), "Show current wallet's recovery seed");
   m_consoleHandler.setHandler("save", boost::bind(&simple_wallet::save, this, _1), "Save wallet synchronized data");
   m_consoleHandler.setHandler("reset", boost::bind(&simple_wallet::reset, this, _1), "Discard cache data and start synchronizing from the start");
   m_consoleHandler.setHandler("help", boost::bind(&simple_wallet::help, this, _1), "Show this help");
@@ -690,10 +729,10 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
   }
 
   if (!m_generate_new.empty()) {
-    std::string walletAddressFile = prepareWalletAddressFilename(m_generate_new);
+    std::string walletBackupFile = prepareWalletBackupFilename(m_generate_new);
     boost::system::error_code ignore;
-    if (boost::filesystem::exists(walletAddressFile, ignore)) {
-      logger(ERROR, BRIGHT_RED) << "Address file already exists: " + walletAddressFile;
+    if (boost::filesystem::exists(walletBackupFile, ignore)) {
+      logger(ERROR, BRIGHT_RED) << "Backup file already exists: " + walletBackupFile;
       return false;
     }
 
@@ -702,8 +741,21 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       return false;
     }
 
-    if (!writeAddressFile(walletAddressFile, m_wallet->getAddress())) {
-      logger(WARNING, BRIGHT_RED) << "Couldn't write wallet address file: " + walletAddressFile;
+    AccountKeys keys;
+    m_wallet->getAccountKeys(keys);
+		
+    if (!writeBackupFile(
+							walletBackupFile, 
+							m_wallet->getAddress(),
+							walletFileName,
+							pwd_container.password(),
+							Common::podToHex(keys.viewSecretKey),
+							Common::podToHex(keys.spendSecretKey),
+							Common::podToHex(keys.address.viewPublicKey),
+							Common::podToHex(keys.address.spendPublicKey)
+						)) 
+	{
+      logger(WARNING, BRIGHT_RED) << "Couldn't write wallet backup file: " + walletBackupFile;
     }
   } else {
     m_wallet.reset(new WalletLegacy(m_currency, *m_node));
@@ -775,14 +827,8 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
     AccountKeys keys;
     m_wallet->getAccountKeys(keys);
 
-    logger(INFO, BRIGHT_WHITE) <<
-      "New wallet prepared!" << std::endl << std::endl <<
-	  m_wallet->getAddress() << " - address" << std::endl <<
-      Common::podToHex(keys.viewSecretKey)<<" - view secret key"<< std::endl <<
-      Common::podToHex(keys.spendSecretKey)<<" - spend secret key"<< std::endl <<
-      Common::podToHex(keys.address.viewPublicKey)<<" - view public key"<< std::endl <<
-      Common::podToHex(keys.address.spendPublicKey)<<" - spend public key"<< std::endl <<
-	  m_wallet_file<<" - wallet file"<< std::endl;
+    logger(INFO, GREEN) << "New wallet prepared!" << std::endl;
+	logger(INFO, CYAN)  << "Wallet address is: " << m_wallet->getAddress() << std::endl;
   }
   catch (const std::exception& e) {
     fail_msg_writer() << "failed to generate new wallet: " << e.what();
@@ -791,12 +837,13 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
 
   success_msg_writer() << std::endl <<
     "**********************************************************************\n" <<
-    "Your wallet has been generated.\n" <<
+    "Your new wallet has been generated.\n" <<
     "Use \"help\" command to see the list of available commands.\n" <<
-    "Always use \"exit\" command when closing simplewallet to save\n" <<
-    "current session's state. Otherwise, you will possibly need to synchronize \n" <<
-    "your wallet again. Your wallet key is NOT under risk anyway.\n" <<
-    "**********************************************************************";
+    "Always use \"exit\" command when closing wallet app to save\n" <<
+    "current session's state. \n" <<
+    "Otherwise, you will possibly need to synchronize your wallet again.\n" <<
+    "Your wallet key is NOT under risk anyway.\n" <<
+    "**********************************************************************\n";
   return true;
 }
 //----------------------------------------------------------------------------------------------------
@@ -938,17 +985,17 @@ void simple_wallet::externalTransactionCreated(CryptoNote::TransactionId transac
   if (txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
     logPrefix << "Unconfirmed";
   } else {
-    logPrefix << "Height " << txInfo.blockHeight << ',';
+    logPrefix << "[" << txInfo.blockHeight << ']';
   }
 
   if (txInfo.totalAmount >= 0) {
     logger(INFO, GREEN) <<
-      logPrefix.str() << " transaction " << Common::podToHex(txInfo.hash) <<
-      ", received " << m_currency.formatAmount(txInfo.totalAmount);
+      logPrefix.str() << " TX = " << Common::podToHex(txInfo.hash) <<
+      ", got " << m_currency.formatAmount(txInfo.totalAmount);
   } else {
     logger(INFO, MAGENTA) <<
-      logPrefix.str() << " transaction " << Common::podToHex(txInfo.hash) <<
-      ", spent " << m_currency.formatAmount(static_cast<uint64_t>(-txInfo.totalAmount));
+      logPrefix.str() << " TX = " << Common::podToHex(txInfo.hash) <<
+      ", sent " << m_currency.formatAmount(static_cast<uint64_t>(-txInfo.totalAmount));
   }
 
   if (txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
@@ -972,7 +1019,7 @@ void simple_wallet::synchronizationProgressUpdated(uint32_t current, uint32_t to
 }
 
 bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
-  success_msg_writer() << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
+  success_msg_writer() << "Available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
     ", locked amount: " << m_currency.formatAmount(m_wallet->pendingBalance());
 
   return true;
@@ -1210,8 +1257,8 @@ bool simple_wallet::run() {
 
   std::cout << std::endl;
 
-  std::string addr_start = m_wallet->getAddress().substr(0, 6);
-  m_consoleHandler.start(false, "[wallet " + addr_start + "]: ", Common::Console::Color::BrightYellow);
+  std::string addr_start = m_wallet->getAddress().substr(0, 12);
+  m_consoleHandler.start(false, addr_start + "> ", Common::Console::Color::Yellow);
   return true;
 }
 //----------------------------------------------------------------------------------------------------
@@ -1219,7 +1266,71 @@ void simple_wallet::stop() {
   m_consoleHandler.requestStop();
 }
 //----------------------------------------------------------------------------------------------------
-bool simple_wallet::print_address(const std::vector<std::string> &args/* = std::vector<std::string>()*/) {
+bool simple_wallet::print_keys(const std::vector<std::string> &args) 
+{
+    AccountKeys keys;
+    m_wallet->getAccountKeys(keys);
+
+	success_msg_writer() << 
+		"Wallet keys are:" << ENDL <<
+		Common::podToHex(keys.viewSecretKey) << " - view secret key" << ENDL <<
+		Common::podToHex(keys.spendSecretKey) << " - spend secret key" << ENDL <<
+		Common::podToHex(keys.address.viewPublicKey) << " - view public key" << ENDL <<
+		Common::podToHex(keys.address.spendPublicKey) << " - spend public key" << ENDL;
+		
+	return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::print_seed(const std::vector<std::string> &args) 
+{
+	AccountKeys keys;
+	m_wallet->getAccountKeys(keys);
+
+	std::string electrum_words;
+	bool success = try_seed(electrum_words);
+
+	if (success) 
+	{
+		success_msg_writer(true) << "\nPLEASE NOTE: the following 24 words can be used to recover access to your wallet. Please write them down and store them somewhere safe and secure. Please do not store them in your email or on file storage services outside of your immediate control.\n";
+		std::cout << electrum_words << std::endl;      
+	}
+	else
+	{
+		fail_msg_writer() << "The wallet is non-deterministic. Cannot display seed.";
+	}
+
+	return true;
+}
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::try_seed(std::string& electrum_words)
+{
+    AccountKeys keys;
+    m_wallet->getAccountKeys(keys);
+
+	Crypto::ElectrumWords::bytes_to_words(keys.spendSecretKey, electrum_words);	
+	Crypto::SecretKey second;
+	
+	keccak((uint8_t *)&keys.spendSecretKey, sizeof(Crypto::SecretKey), (uint8_t *)&second, sizeof(Crypto::SecretKey));
+	
+	sc_reduce32((uint8_t *)&second);
+	
+	return memcmp(second.data,keys.viewSecretKey.data, sizeof(Crypto::SecretKey)) == 0;	
+}
+//----------------------------------------------------------------------------------------------------
+//bool wallet2::get_seed(std::string& electrum_words)
+//{
+//  crypto::ElectrumWords::bytes_to_words(get_account().get_keys().m_spend_secret_key, electrum_words);
+
+//  crypto::secret_key second;
+//  keccak((uint8_t *)&get_account().get_keys().m_spend_secret_key, sizeof(crypto::secret_key), (uint8_t *)&second, sizeof(crypto::secret_key));
+
+//  sc_reduce32((uint8_t *)&second);
+  
+//  return memcmp(second.data,get_account().get_keys().m_view_secret_key.data, sizeof(crypto::secret_key)) == 0;
+//}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::print_address(const std::vector<std::string> &args) {
   success_msg_writer() << m_wallet->getAddress();
   return true;
 }

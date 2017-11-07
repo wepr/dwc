@@ -91,7 +91,7 @@ public:
   virtual std::error_code cancelTransaction(size_t transactionId) override;
 
   virtual void getAccountKeys(AccountKeys& keys) override;
-
+//	virtual bool try_seed(std::string& electrum_words);
 private:
 
   // IBlockchainSynchronizerObserver

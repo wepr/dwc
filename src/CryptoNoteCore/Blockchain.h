@@ -67,7 +67,8 @@ namespace CryptoNote {
     uint32_t getAlternativeBlocksCount();
     Crypto::Hash getBlockIdByHeight(uint32_t height);
 //////	
-	Crypto::Hash Blockchain::getPrevBlockHash();
+	Crypto::Hash getPrevBlockHash();
+//	Crypto::Hash Blockchain::getPrevBlockHash();
 //////	
     bool getBlockByHash(const Crypto::Hash &h, Block &blk);
     bool getBlockHeight(const Crypto::Hash& blockId, uint32_t& blockHeight);

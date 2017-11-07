@@ -12,6 +12,7 @@
 #include "CryptoNoteProtocol/CryptoNoteProtocolHandler.h"
 #include "Serialization/SerializationTools.h"
 #include "version.h"
+#include "CryptoNoteConfig.h"
 
 namespace {
   template <typename T>
@@ -252,12 +253,13 @@ bool DaemonCommandsHandler::print_stat(const std::vector<std::string>& args) {
   const auto& currency = m_core.currency();
   std::cout << "Block height: " << height << std::endl;
   std::cout << "Block difficulty: " << m_core.difficultyAtHeight(height) << std::endl;
+  std::cout << "Network hashrate: " << (uint64_t) m_core.difficultyAtHeight(height) / CryptoNote::parameters::DIFFICULTY_TARGET << " H/s" << std::endl;
   std::cout << "Total coins in network:  " << currency.formatAmount(totalCoinsInNetwork) << std::endl;
-  std::cout << "Total coins on deposits: " << currency.formatAmount(totalCoinsOnDeposits) <<
-    " (" << currency.formatAmount(calculatePercent(currency, totalCoinsOnDeposits, totalCoinsInNetwork)) << "%)" << std::endl;
-  std::cout << "Amount of active coins:  " << currency.formatAmount(amountOfActiveCoins) <<
-    " (" << currency.formatAmount(calculatePercent(currency, amountOfActiveCoins, totalCoinsInNetwork)) << "%)" << std::endl;
-  std::cout << "Total interest paid: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+//  std::cout << "Total coins on deposits: " << currency.formatAmount(totalCoinsOnDeposits) <<
+//    " (" << currency.formatAmount(calculatePercent(currency, totalCoinsOnDeposits, totalCoinsInNetwork)) << "%)" << std::endl;
+//  std::cout << "Amount of active coins:  " << currency.formatAmount(amountOfActiveCoins) <<
+//    " (" << currency.formatAmount(calculatePercent(currency, amountOfActiveCoins, totalCoinsInNetwork)) << "%)" << std::endl;
+//  std::cout << "Total interest paid: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
 
   return true;
 }

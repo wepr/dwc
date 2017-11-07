@@ -26,7 +26,7 @@
 
 #include <System/Dispatcher.h>
 #include <System/Ipv4Address.h>
-
+#include "crypto/electrum-words.h"
 namespace CryptoNote
 {
   /************************************************************************/
@@ -65,6 +65,8 @@ namespace CryptoNote
     bool new_wallet(const std::string &wallet_file, const std::string& password);
     bool open_wallet(const std::string &wallet_file, const std::string& password);
     bool close_wallet();
+	
+	bool try_seed(std::string& electrum_words);
 
     bool help(const std::vector<std::string> &args = std::vector<std::string>());
     bool exit(const std::vector<std::string> &args);
@@ -77,6 +79,8 @@ namespace CryptoNote
     bool listTransfers(const std::vector<std::string> &args);
     bool transfer(const std::vector<std::string> &args);
     bool print_address(const std::vector<std::string> &args = std::vector<std::string>());
+    bool print_keys(const std::vector<std::string> &args = std::vector<std::string>());
+    bool print_seed(const std::vector<std::string> &args = std::vector<std::string>());
     bool save(const std::vector<std::string> &args);
     bool reset(const std::vector<std::string> &args);
     bool set_log(const std::vector<std::string> &args);
@@ -151,6 +155,11 @@ namespace CryptoNote
 
     std::string m_wallet_file;
 
+    std::string m_electrum_seed;  // electrum-style seed parameter
+    Crypto::SecretKey m_recovery_key;  // recovery key (used as random for wallet gen)
+    bool m_restore_deterministic_wallet;  // recover flag
+    //bool m_non_deterministic;  // old 2-random generation	
+	
     std::unique_ptr<std::promise<std::error_code>> m_initResultPromise;
 
     Common::ConsoleHandler m_consoleHandler;

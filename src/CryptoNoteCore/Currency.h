@@ -133,7 +133,8 @@ private:
 
   bool generateGenesisBlock();
   uint64_t baseRewardFunction(uint64_t alreadyGeneratedCoins, uint32_t height, const Crypto::Hash last_BlockHash = NULL_HASH) const;
-	uint64_t Currency::Lottery(const Crypto::Hash lbh) const;
+//	uint64_t Currency::Lottery(const Crypto::Hash lbh) const;
+	uint64_t Lottery(const Crypto::Hash lbh) const;
 private:
   uint64_t m_maxBlockHeight;
   size_t m_maxBlockBlobSize;

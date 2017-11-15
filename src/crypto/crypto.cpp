@@ -41,7 +41,45 @@ namespace Crypto {
     cn_fast_hash(data, length, reinterpret_cast<Hash &>(res));
     sc_reduce32(reinterpret_cast<unsigned char*>(&res));
   }
+  
+//////////////////////////////////////////////////////////////////////  
+//generate public and secret keys from a random 256-bit integer or
+//recover from recovery_key if is_recovery = true
+//////////////////////////////////////////////////////////////////////  
+SecretKey crypto_ops::generate_keys_or_recover
+	(
+		PublicKey &pub, 
+		SecretKey &sec, 
+		const SecretKey& recovery_key, 
+		bool is_recovery	
+	) 
+{
+	lock_guard<mutex> lock(random_lock);
+	ge_p3 point;
 
+	SecretKey rng;
+
+	if (is_recovery)
+		{
+			rng = recovery_key;
+		}
+	else
+    {
+      //random_scalar(rng);
+	  random_scalar(reinterpret_cast<EllipticCurveScalar&>(rng));
+    }
+    sec = rng;
+    //sc_reduce32(&sec);  // reduce in case second round of keys (sendkeys)
+	sc_reduce32((uint8_t *)&sec);
+
+    //ge_scalarmult_base(&point, &sec);
+	ge_scalarmult_base(&point, reinterpret_cast<unsigned char*>(&sec));
+    //ge_p3_tobytes(&pub, &point);
+	ge_p3_tobytes(reinterpret_cast<unsigned char*>(&pub), &point);
+
+	return rng;
+}
+//////////////////////////////////////////////////////////////////////  
   void crypto_ops::generate_keys(PublicKey &pub, SecretKey &sec) {
     lock_guard<mutex> lock(random_lock);
     ge_p3 point;

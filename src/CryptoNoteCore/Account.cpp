@@ -35,4 +35,47 @@ void AccountBase::serialize(ISerializer &s) {
   s(m_keys, "m_keys");
   s(m_creation_timestamp, "m_creation_timestamp");
 }
+//-----------------------------------------------------------------
+Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& recovery_key, bool is_recovery, bool is_deterministic)
+{
+    Crypto::SecretKey like_seed = 
+		generate_keys_or_recover(
+			m_keys.address.spendPublicKey, 
+			m_keys.spendSecretKey, 
+			recovery_key, 
+			is_recovery);
+
+    //rng for generating second set of keys is hash of like_seed rng
+	//means only one set of electrum-style words needed for recovery
+    Crypto::SecretKey secret_vk;
+	
+    keccak((uint8_t *)&like_seed, sizeof(Crypto::SecretKey), (uint8_t *)&secret_vk, sizeof(Crypto::SecretKey));
+
+    generate_keys_or_recover(
+		m_keys.address.viewPublicKey, 
+		m_keys.viewSecretKey, 
+		secret_vk, 
+		is_deterministic);
+
+	struct tm timestamp;
+	
+	timestamp.tm_year = 2017 - 1900;  // 2017-11-14
+	timestamp.tm_mon = 11 - 1;
+	timestamp.tm_mday = 14;
+	timestamp.tm_hour = 0;
+	timestamp.tm_min = 0;
+	timestamp.tm_sec = 0;
+
+	if (is_recovery)
+		{
+			m_creation_timestamp = mktime(&timestamp);
+		}
+	else
+		{
+			m_creation_timestamp = time(NULL);
+		}
+		
+	return like_seed;
+}
+//-----------------------------------------------------------------
 }

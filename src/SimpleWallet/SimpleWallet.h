@@ -76,7 +76,9 @@ namespace CryptoNote
     bool show_incoming_transfers(const std::vector<std::string> &args);
     bool show_payments(const std::vector<std::string> &args);
     bool show_blockchain_height(const std::vector<std::string> &args);
+    bool ass(const std::vector<std::string> &args);
     bool listTransfers(const std::vector<std::string> &args);
+    bool listComments(const std::vector<std::string> &args);
     bool transfer(const std::vector<std::string> &args);
     bool print_address(const std::vector<std::string> &args = std::vector<std::string>());
     bool print_keys(const std::vector<std::string> &args = std::vector<std::string>());

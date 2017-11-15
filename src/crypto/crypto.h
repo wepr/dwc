@@ -38,6 +38,9 @@ struct EllipticCurveScalar {
     void operator=(const crypto_ops &);
     ~crypto_ops();
 
+	static SecretKey crypto_ops::generate_keys_or_recover(PublicKey &pub, SecretKey &sec, const SecretKey& recovery_key, bool is_recovery);
+	friend SecretKey crypto_ops::generate_keys_or_recover(PublicKey &pub, SecretKey &sec, const SecretKey& recovery_key, bool is_recovery);
+	
     static void generate_keys(PublicKey &, SecretKey &);
     friend void generate_keys(PublicKey &, SecretKey &);
     static bool check_key(const PublicKey &);
@@ -123,6 +126,10 @@ struct EllipticCurveScalar {
     }
   };
 
+////////////  
+inline SecretKey generate_keys_or_recover(PublicKey &pub, SecretKey &sec, const SecretKey& recovery_key = SecretKey(), bool is_recovery = false) {
+return crypto_ops::generate_keys_or_recover(pub, sec, recovery_key, is_recovery);}
+////////////
   /* Generate a new key pair
    */
   inline void generate_keys(PublicKey &pub, SecretKey &sec) {

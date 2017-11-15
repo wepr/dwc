@@ -45,6 +45,14 @@ public:
   virtual void removeObserver(IWalletLegacyObserver* observer) override;
 
   virtual void initAndGenerate(const std::string& password) override;
+  virtual void WalletLegacy::initAndGenerateOrRecover
+	(
+		const std::string& password, 
+		const Crypto::SecretKey& recovery_key,
+		bool is_recovery, 
+		bool is_deterministic
+	) override;
+	
   virtual void initAndLoad(std::istream& source, const std::string& password) override;
   virtual void initWithKeys(const AccountKeys& accountKeys, const std::string& password) override;
   virtual void shutdown() override;

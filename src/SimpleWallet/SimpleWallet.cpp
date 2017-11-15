@@ -39,6 +39,8 @@
 
 #include <Logging/LoggerManager.h>
 
+#include "rainbow.h"
+
 #if defined(WIN32)
 #include <crtdbg.h>
 #endif
@@ -296,7 +298,7 @@ std::string tryToOpenWalletOrLoadKeysOrThrow(LoggerRef& logger, std::unique_ptr<
   }
 
   if (walletExists) {
-    logger(INFO) << "Loading wallet...";
+    logger(INFO,YELLOW) << "Loading wallet...";
     std::ifstream walletFile;
     walletFile.open(walletFileName, std::ios_base::binary | std::ios_base::in);
     if (walletFile.fail()) {
@@ -383,9 +385,9 @@ const size_t TOTAL_AMOUNT_MAX_WIDTH = 20;
 const size_t FEE_MAX_WIDTH = 14;
 const size_t BLOCK_MAX_WIDTH = 7;
 const size_t UNLOCK_TIME_MAX_WIDTH = 11;
-
+////////////////////////////////////////////////////////////////////////////////
 void printListTransfersHeader(LoggerRef& logger) {
-  std::string header = makeCenteredString(TIMESTAMP_MAX_WIDTH, "timestamp (UTC)") + "  ";
+  std::string header = makeCenteredString(TIMESTAMP_MAX_WIDTH, "timestamp") + "  ";
   header += makeCenteredString(HASH_MAX_WIDTH, "hash") + "  ";
   header += makeCenteredString(TOTAL_AMOUNT_MAX_WIDTH, "total amount") + "  ";
   header += makeCenteredString(FEE_MAX_WIDTH, "fee") + "  ";
@@ -395,7 +397,7 @@ void printListTransfersHeader(LoggerRef& logger) {
   logger(INFO) << header;
   logger(INFO) << std::string(header.size(), '-');
 }
-
+//////////////////////////////////////////////////////////////////////////
 void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& txInfo, IWalletLegacy& wallet, const Currency& currency) {
   std::vector<uint8_t> extraVec = Common::asBinaryArray(txInfo.extra);
 
@@ -404,11 +406,11 @@ void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& tx
 
   char timeString[TIMESTAMP_MAX_WIDTH + 1];
   time_t timestamp = static_cast<time_t>(txInfo.timestamp);
-  if (std::strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", std::gmtime(&timestamp)) == 0) {
+  if (std::strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", std::localtime(&timestamp)) == 0) {
     throw std::runtime_error("time buffer is too small");
   }
 
-  std::string rowColor = txInfo.totalAmount < 0 ? MAGENTA : GREEN;
+  std::string rowColor = txInfo.totalAmount < 0 ? RED : GREEN;
   logger(INFO, rowColor)
     << std::setw(TIMESTAMP_MAX_WIDTH) << timeString
     << "  " << std::setw(HASH_MAX_WIDTH) << Common::podToHex(txInfo.hash)
@@ -416,23 +418,50 @@ void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& tx
     << "  " << std::setw(FEE_MAX_WIDTH) << currency.formatAmount(txInfo.fee)
     << "  " << std::setw(BLOCK_MAX_WIDTH) << txInfo.blockHeight
     << "  " << std::setw(UNLOCK_TIME_MAX_WIDTH) << txInfo.unlockTime;
-
+	
   if (!paymentIdStr.empty()) {
-    logger(INFO, rowColor) << "payment ID: " << paymentIdStr;
+    logger(INFO, BRIGHT_BLUE) << " PAYMENT ID: " << paymentIdStr;
   }
 
-  if (txInfo.totalAmount < 0) {
-    if (txInfo.transferCount > 0) {
-      logger(INFO, rowColor) << "transfers:";
-      for (TransferId id = txInfo.firstTransferId; id < txInfo.firstTransferId + txInfo.transferCount; ++id) {
+  if (txInfo.totalAmount < 0) 
+  {
+    if (txInfo.transferCount > 0) 
+	{
+      logger(INFO, MAGENTA) << " TRANSFERS >>";
+      for (TransferId id = txInfo.firstTransferId; id < txInfo.firstTransferId + txInfo.transferCount; ++id) 
+	  {
         WalletLegacyTransfer tr;
         wallet.getTransfer(id, tr);
-        logger(INFO, rowColor) << tr.address << "  " << std::setw(TOTAL_AMOUNT_MAX_WIDTH) << currency.formatAmount(tr.amount);
+        logger(INFO, BRIGHT_MAGENTA) << "  " << tr.address << " = " << currency.formatAmount(tr.amount);
       }
     }
   }
+//////////////  
+	if (txInfo.messages.size() > 0) 
+	{
+		logger(INFO, CYAN) << " COMMENTS >>";
+		for(int i = 0; i < txInfo.messages.size(); i++)
+			logger(INFO, BRIGHT_CYAN) << "  " << txInfo.messages[i];
+	}
+//////////////
+}
+//////////////////////////////////////////////////////////////////////////
+void printListComments(LoggerRef& logger, const WalletLegacyTransaction& txInfo, IWalletLegacy& wallet, const Currency& currency) 
+{
+	std::vector<uint8_t> extraVec = Common::asBinaryArray(txInfo.extra);
 
-  logger(INFO, rowColor) << " "; //just to make logger print one endline
+	Crypto::Hash paymentId;
+
+	char timeString[20];
+	time_t timestamp = static_cast<time_t>(txInfo.timestamp);
+	std::strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", std::localtime(&timestamp));
+
+	if (txInfo.messages.size() > 0) 
+	{
+		logger(INFO, CYAN) << Common::podToHex(txInfo.hash) << " @ " << timeString << " >> " << txInfo.blockHeight;
+		for(int i = 0; i < txInfo.messages.size(); i++)
+			logger(INFO, BRIGHT_CYAN) << "  " << txInfo.messages[i];
+	}
 }
 ///////////////////////////////////////////////////////////////////////////////
 std::string prepareWalletBackupFilename(const std::string& walletBaseName) 
@@ -485,7 +514,7 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
 
   return true;
 }
-
+////////////////////////////////
 bool processServerAliasResponse(const std::string& response, std::string& address) {
   try {
     std::stringstream stream(response);
@@ -509,7 +538,7 @@ bool processServerAliasResponse(const std::string& response, std::string& addres
       return false;
     }
 
-    auto xdnIt = rootIt->second[0].getObject().find("xdn");
+    auto xdnIt = rootIt->second[0].getObject().find("zzl");
     if (xdnIt == rootIt->second[0].getObject().end()) {
       return false;
     }
@@ -595,8 +624,9 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   m_consoleHandler.setHandler("stop_mining", boost::bind(&simple_wallet::stop_mining, this, _1), "Stop mining in daemon");
   //m_consoleHandler.setHandler("refresh", boost::bind(&simple_wallet::refresh, this, _1), "Resynchronize transactions and balance");
   m_consoleHandler.setHandler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet's balance");
-  m_consoleHandler.setHandler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
-  m_consoleHandler.setHandler("list_transfers", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
+  m_consoleHandler.setHandler("incoming", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "Show incoming transfers");
+  m_consoleHandler.setHandler("comments", boost::bind(&simple_wallet::listComments, this, _1), "Show all transaction's comments");
+  m_consoleHandler.setHandler("list", boost::bind(&simple_wallet::listTransfers, this, _1), "Show all known transfers");
   m_consoleHandler.setHandler("payments", boost::bind(&simple_wallet::show_payments, this, _1), "payments <payment_id_1> [<payment_id_2> ... <payment_id_N>] - Show payments <payment_id_1>, ... <payment_id_N>");
   m_consoleHandler.setHandler("top", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
   m_consoleHandler.setHandler("bc_height", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
@@ -606,6 +636,7 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
     "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
   m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
   m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet's public address");
+  m_consoleHandler.setHandler("ass", boost::bind(&simple_wallet::ass, this, _1), "Temporary debug interface");
   m_consoleHandler.setHandler("keys", boost::bind(&simple_wallet::print_keys, this, _1), "Show current wallet's keys");
   m_consoleHandler.setHandler("seed", boost::bind(&simple_wallet::print_seed, this, _1), "Show current wallet's recovery seed");
   m_consoleHandler.setHandler("save", boost::bind(&simple_wallet::save, this, _1), "Save wallet synchronized data");
@@ -773,9 +804,9 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     logger(INFO, BRIGHT_WHITE) << "Opened wallet: " << m_wallet->getAddress();
 
     success_msg_writer() <<
-      "**********************************************************************\n" <<
+      "======================================================================\n" <<
       "Use \"help\" command to see the list of available commands.\n" <<
-      "**********************************************************************";
+      "======================================================================";
   }
 
   return true;
@@ -809,7 +840,12 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
   try {
     m_initResultPromise.reset(new std::promise<std::error_code>());
     std::future<std::error_code> f_initError = m_initResultPromise->get_future();
-    m_wallet->initAndGenerate(password);
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+//    m_wallet->initAndGenerate(password);
+//logger(INFO, BRIGHT_BLUE) << "m_wallet->initAndGenerateOrRecover" << std::endl;
+		Crypto::SecretKey rkey;
+		m_wallet->initAndGenerateOrRecover(password,rkey,0,1);
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     auto initError = f_initError.get();
     m_initResultPromise.reset(nullptr);
     if (initError) {
@@ -836,14 +872,14 @@ bool simple_wallet::new_wallet(const std::string &wallet_file, const std::string
   }
 
   success_msg_writer() << std::endl <<
-    "**********************************************************************\n" <<
+    "======================================================================\n" <<
     "Your new wallet has been generated.\n" <<
     "Use \"help\" command to see the list of available commands.\n" <<
     "Always use \"exit\" command when closing wallet app to save\n" <<
     "current session's state. \n" <<
     "Otherwise, you will possibly need to synchronize your wallet again.\n" <<
     "Your wallet key is NOT under risk anyway.\n" <<
-    "**********************************************************************\n";
+    "======================================================================\n";
   return true;
 }
 //----------------------------------------------------------------------------------------------------
@@ -977,26 +1013,47 @@ void simple_wallet::connectionStatusUpdated(bool connected) {
   }
 }
 //----------------------------------------------------------------------------------------------------
-void simple_wallet::externalTransactionCreated(CryptoNote::TransactionId transactionId)  {
-  WalletLegacyTransaction txInfo;
-  m_wallet->getTransaction(transactionId, txInfo);
-  
-  std::stringstream logPrefix;
-  if (txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
-    logPrefix << "Unconfirmed";
-  } else {
-    logPrefix << "[" << txInfo.blockHeight << ']';
-  }
+void simple_wallet::externalTransactionCreated(CryptoNote::TransactionId transactionId)  
+{
+	WalletLegacyTransaction txInfo;
+	m_wallet->getTransaction(transactionId, txInfo);
 
-  if (txInfo.totalAmount >= 0) {
-    logger(INFO, GREEN) <<
-      logPrefix.str() << " TX = " << Common::podToHex(txInfo.hash) <<
-      ", got " << m_currency.formatAmount(txInfo.totalAmount);
-  } else {
-    logger(INFO, MAGENTA) <<
-      logPrefix.str() << " TX = " << Common::podToHex(txInfo.hash) <<
-      ", sent " << m_currency.formatAmount(static_cast<uint64_t>(-txInfo.totalAmount));
-  }
+	std::stringstream logPrefix;
+////////////////
+	char timeString[20];
+	time_t timestamp = static_cast<time_t>(txInfo.timestamp);
+	std::strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", std::localtime(&timestamp));
+////////////////
+
+	if (txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) 
+		{
+			logPrefix << "Unconfirmed";
+		} 
+	else 
+		{
+			logPrefix << timeString << " @ " << txInfo.blockHeight;
+		}
+
+	if (txInfo.totalAmount >= 0) 
+		{
+			logger(INFO, GREEN) <<
+			logPrefix.str() << " = " << Common::podToHex(txInfo.hash) <<
+			" +" << m_currency.formatAmount(txInfo.totalAmount);
+		} 
+	else 
+		{
+			logger(INFO, RED) <<
+			logPrefix.str() << " = " << Common::podToHex(txInfo.hash) <<
+			" -" << m_currency.formatAmount(static_cast<uint64_t>(-txInfo.totalAmount));
+		}
+//////////////  
+	if (txInfo.messages.size() > 0) 
+	{
+		logger(INFO, CYAN) << " COMMENTS >>";
+		for(int i = 0; i < txInfo.messages.size(); i++)
+			logger(INFO, BRIGHT_CYAN) << "  " << txInfo.messages[i];
+	}
+//////////////
 
   if (txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
     m_refresh_progress_reporter.update(m_node->getLastLocalBlockHeight(), true);
@@ -1027,25 +1084,50 @@ bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::v
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::show_incoming_transfers(const std::vector<std::string>& args) {
   bool hasTransfers = false;
+	logger(INFO, BRIGHT_YELLOW) << "INCOMING TRANSFERS:" << std::endl; 
   size_t transactionsCount = m_wallet->getTransactionCount();
   for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber) {
     WalletLegacyTransaction txInfo;
     m_wallet->getTransaction(trantransactionNumber, txInfo);
     if (txInfo.totalAmount < 0) continue;
     hasTransfers = true;
-    logger(INFO) << "        amount       \t                              tx id";
-    logger(INFO, GREEN) <<  // spent - magenta
-      std::setw(21) << m_currency.formatAmount(txInfo.totalAmount) << '\t' << Common::podToHex(txInfo.hash);
+////////////////
+	char timeString[20];
+	time_t timestamp = static_cast<time_t>(txInfo.timestamp);
+	std::strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", std::localtime(&timestamp));
+////////////////
+    logger(INFO, GREEN) << Common::podToHex(txInfo.hash) << " @ " << timeString << " = " << std::setw(17) << m_currency.formatAmount(txInfo.totalAmount);
   }
 
-  if (!hasTransfers) success_msg_writer() << "No incoming transfers";
+  if (!hasTransfers) success_msg_writer() << "No incoming transfers yet :(";
   return true;
 }
+/////////////////////////////////////////////////////
+bool simple_wallet::listComments(const std::vector<std::string>& args) 
+{
+	size_t transactionsCount = m_wallet->getTransactionCount();
+	logger(INFO, BRIGHT_YELLOW) << "COMMENTS:" << std::endl;
+	
+	for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber) 
+		{
+			WalletLegacyTransaction txInfo;
+			m_wallet->getTransaction(trantransactionNumber, txInfo);
 
+			if (txInfo.state != WalletLegacyTransactionState::Active || txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) 
+			{
+			  continue;
+			}
+			printListComments(logger, txInfo, *m_wallet, m_currency);
+		}
+	return true;
+}
+/////////////////////////////////////////////////////
 bool simple_wallet::listTransfers(const std::vector<std::string>& args) {
   bool haveTransfers = false;
 
   size_t transactionsCount = m_wallet->getTransactionCount();
+	logger(INFO, BRIGHT_YELLOW) << "TRANSFERS:" << std::endl;
+  
   for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber) {
     WalletLegacyTransaction txInfo;
     m_wallet->getTransaction(trantransactionNumber, txInfo);
@@ -1067,7 +1149,7 @@ bool simple_wallet::listTransfers(const std::vector<std::string>& args) {
 
   return true;
 }
-
+//////////////////////////////////////////////////////////////////
 bool simple_wallet::show_payments(const std::vector<std::string> &args) {
   if (args.empty()) {
     fail_msg_writer() << "expected at least one payment ID";
@@ -1075,6 +1157,8 @@ bool simple_wallet::show_payments(const std::vector<std::string> &args) {
   }
 
   try {
+	logger(INFO, BRIGHT_YELLOW) << "PAYMENTS:" << std::endl;
+	  
     auto hashes = args;
     std::sort(std::begin(hashes), std::end(hashes));
     hashes.erase(std::unique(std::begin(hashes), std::end(hashes)), std::end(hashes));
@@ -1257,8 +1341,8 @@ bool simple_wallet::run() {
 
   std::cout << std::endl;
 
-  std::string addr_start = m_wallet->getAddress().substr(0, 12);
-  m_consoleHandler.start(false, addr_start + "> ", Common::Console::Color::Yellow);
+  std::string addr_start = m_wallet->getAddress().substr(0, 9);
+  m_consoleHandler.start(false, addr_start + " >> ", Common::Console::Color::Yellow);
   return true;
 }
 //----------------------------------------------------------------------------------------------------
@@ -1271,32 +1355,46 @@ bool simple_wallet::print_keys(const std::vector<std::string> &args)
     AccountKeys keys;
     m_wallet->getAccountKeys(keys);
 
-	success_msg_writer() << 
-		"Wallet keys are:" << ENDL <<
-		Common::podToHex(keys.viewSecretKey) << " - view secret key" << ENDL <<
-		Common::podToHex(keys.spendSecretKey) << " - spend secret key" << ENDL <<
-		Common::podToHex(keys.address.viewPublicKey) << " - view public key" << ENDL <<
-		Common::podToHex(keys.address.spendPublicKey) << " - spend public key" << ENDL;
+	std::cout << std::endl << yellow 
+		<< "!!! AHTUNG !!!" << std::endl << std::endl << teal 
+		<< "The following 2 upper keys can be used to recover access to your wallet." << std::endl 
+		<< "Please write them down and store them somewhere safe and secure." << std::endl 
+		<< "Please do not store them in your email or on file storage services outside of your immediate control." << std::endl;
+
+			
+	std::cout << std::endl
+		<< maroon << Common::podToHex(keys.spendSecretKey) << red << " - PRIVATE spend key" << std::endl
+		<< purple << Common::podToHex(keys.viewSecretKey) << magenta << " - PRIVATE view key" << std::endl
+		<< green << Common::podToHex(keys.address.spendPublicKey) << lime << " - PUBLIC spend key" << std::endl
+		<< teal << Common::podToHex(keys.address.viewPublicKey) << cyan << " - PUBLIC view key" << std::endl << std::endl;
 		
 	return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::print_seed(const std::vector<std::string> &args) 
 {
-	AccountKeys keys;
-	m_wallet->getAccountKeys(keys);
+//	AccountKeys keys;
+//	m_wallet->getAccountKeys(keys);
 
 	std::string electrum_words;
 	bool success = try_seed(electrum_words);
 
 	if (success) 
 	{
-		success_msg_writer(true) << "\nPLEASE NOTE: the following 24 words can be used to recover access to your wallet. Please write them down and store them somewhere safe and secure. Please do not store them in your email or on file storage services outside of your immediate control.\n";
-		std::cout << electrum_words << std::endl;      
+		std::cout << std::endl << yellow 
+			<< "!!! AHTUNG !!!" << std::endl << std::endl << teal 
+			<< "The following 24 words can be used to recover access to your wallet." << std::endl 
+			<< "Please write them down and store them somewhere safe and secure." << std::endl 
+			<< "Please do not store them in your email or on file storage services outside of your immediate control." << std::endl;
+			
+		std::cout << std::endl << maroon << electrum_words << std::endl << std::endl;      
 	}
 	else
 	{
-		fail_msg_writer() << "The wallet is non-deterministic. Cannot display seed.";
+		std::cout 
+			<< std::endl << red << "The wallet is CLASSIC." << std::endl 
+			<< teal << "Cannot display seed." << std::endl 
+			<< "Use " << khaki << "keys" << teal << " command instead." << std::endl << std::endl;
 	}
 
 	return true;
@@ -1333,6 +1431,85 @@ bool simple_wallet::try_seed(std::string& electrum_words)
 bool simple_wallet::print_address(const std::vector<std::string> &args) {
   success_msg_writer() << m_wallet->getAddress();
   return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::ass(const std::vector<std::string> &args) 
+{
+/*
+std::cout 
+	<< grey << "@#$%&" << white << "@#$%&" << navy << "@#$%&" << green << "@#$%&" << teal << "@#$%&" << maroon 
+	<< "@#$%&" << purple << "@#$%&" << blue << "@#$%&" << lime << "@#$%&" << cyan << "@#$%&" << red << "@#$%&" 
+	<< magenta << "@#$%&" << khaki << "@#$%&" << yellow << "@#$%&" << std::endl;
+*/
+    AccountKeys keys;
+    m_wallet->getAccountKeys(keys);
+
+	std::cout 
+		<< yellow << "Wallet keys are:" << std::endl
+		<< maroon << Common::podToHex(keys.spendSecretKey) << red << " - PRIVATE spend key" << std::endl
+		<< purple << Common::podToHex(keys.viewSecretKey) << magenta << " - PRIVATE view key" << std::endl
+		<< green << Common::podToHex(keys.address.spendPublicKey) << lime << " - PUBLIC spend key" << std::endl
+		<< teal << Common::podToHex(keys.address.viewPublicKey) << cyan << " - PUBLIC view key" << std::endl;
+
+//-------------------------------------------------		
+///////////////////////////////////////////////////		
+ std::unique_ptr<CryptoNote::IWalletLegacy> sunduk;
+ std::string password = "123456";
+ bool is_determ;
+ 
+	try 
+		{
+			std::unique_ptr<CryptoNote::IWalletLegacy> sunduk;
+			std::string password = "123456";
+			Crypto::SecretKey rkey;
+
+			sunduk.reset(new WalletLegacy(m_currency, *m_node.get()));
+			sunduk->initAndGenerateOrRecover(password,rkey,0,1);
+			
+			//return false;
+			AccountKeys skeys;
+			sunduk->getAccountKeys(skeys);
+			
+			std::cout << yellow << "Sunduk keys are:\r\n";
+			logger(INFO, RED) << Common::podToHex(skeys.spendSecretKey) << " - PRIVATE spend key";
+			logger(INFO, MAGENTA) << Common::podToHex(skeys.viewSecretKey) << " - PRIVATE view key";
+			logger(INFO, GREEN) << Common::podToHex(skeys.address.spendPublicKey) << " - PUBLIC spend key";
+			logger(INFO, CYAN) << Common::podToHex(skeys.address.viewPublicKey) << " - PUBLIC view key\r\n";
+
+			
+	Crypto::SecretKey second;
+	
+	keccak((uint8_t *)&skeys.spendSecretKey, sizeof(Crypto::SecretKey), (uint8_t *)&second, sizeof(Crypto::SecretKey));
+	logger(INFO, BRIGHT_BLUE) << Common::podToHex(second) << " - keccak second" ;
+	sc_reduce32((uint8_t *)&second);
+	logger(INFO, BRIGHT_YELLOW) << Common::podToHex(second) << " - keccak + sc_reduce32 second" ;
+	
+	is_determ = memcmp(second.data,skeys.viewSecretKey.data, sizeof(Crypto::SecretKey)) == 0;	
+			
+	if (is_determ)
+		logger(INFO, GREEN) << "yep!!!";
+	else
+		logger(INFO, RED) << "nope :(";
+			
+			
+			
+
+
+
+		}
+	catch (const std::exception& e) 
+		{
+		fail_msg_writer() << "failed to generate new wallet: " << e.what();
+		return false;
+		}		
+		
+		
+		
+		
+		
+		
+		
+	return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::process_command(const std::vector<std::string> &args) {
@@ -1384,12 +1561,12 @@ int main(int argc, char* argv[]) {
       CryptoNote::Currency tmp_currency = CryptoNote::CurrencyBuilder(logManager).currency();
       CryptoNote::simple_wallet tmp_wallet(dispatcher, tmp_currency, logManager);
 
-      std::cout << CRYPTONOTE_NAME << " wallet " << PROJECT_VERSION_LONG << std::endl;
+      std::cout << cyan << CRYPTONOTE_NAME << " wallet " << teal << PROJECT_VERSION_LONG << std::endl;
       std::cout << "Usage: "<< CRYPTONOTE_TICKER <<" [w --wallet-file=<file>|--generate-new-wallet=<file>] [--daemon-address=<host>:<port>] [<COMMAND>]";
       std::cout << desc_all << '\n' << tmp_wallet.get_commands_str();
       return false;
     } else if (command_line::get_arg(vm, command_line::arg_version))  {
-      std::cout << CRYPTONOTE_NAME << " wallet " << PROJECT_VERSION_LONG;
+      std::cout << cyan << CRYPTONOTE_NAME << " wallet " << teal << PROJECT_VERSION_LONG << std::endl;
       return false;
     }
 
@@ -1411,7 +1588,7 @@ int main(int argc, char* argv[]) {
 
   logManager.configure(buildLoggerConfiguration(logLevel, Common::ReplaceExtenstion(argv[0], ".log")));
 
-  logger(INFO, BRIGHT_WHITE) << CRYPTONOTE_NAME << " wallet " << PROJECT_VERSION_LONG;
+  std::cout << cyan << CRYPTONOTE_NAME << " wallet " << teal << PROJECT_VERSION_LONG << std::endl;
 
   CryptoNote::Currency currency = CryptoNote::CurrencyBuilder(logManager).
     testnet(command_line::get_arg(vm, arg_testnet)).currency();

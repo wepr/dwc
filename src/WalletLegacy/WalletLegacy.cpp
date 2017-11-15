@@ -141,7 +141,32 @@ void WalletLegacy::addObserver(IWalletLegacyObserver* observer) {
 void WalletLegacy::removeObserver(IWalletLegacyObserver* observer) {
   m_observerManager.remove(observer);
 }
+/////////////////////////////////////////////////////////////////////////////
+void WalletLegacy::initAndGenerateOrRecover
+	(
+		const std::string& password, 
+		const Crypto::SecretKey& recovery_key,
+		bool is_recovery, 
+		bool is_deterministic
+	) 
+{
 
+  {
+    std::unique_lock<std::mutex> stateLock(m_cacheMutex);
+
+    if (m_state != NOT_INITIALIZED) {
+      throw std::system_error(make_error_code(error::ALREADY_INITIALIZED));
+    }
+
+    m_account.generate_or_recover(recovery_key, is_recovery, is_deterministic);
+    m_password = password;
+
+    initSync();
+  }
+
+  m_observerManager.notify(&IWalletLegacyObserver::initCompleted, std::error_code());
+}
+/////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::initAndGenerate(const std::string& password) {
   {
     std::unique_lock<std::mutex> stateLock(m_cacheMutex);
@@ -158,7 +183,7 @@ void WalletLegacy::initAndGenerate(const std::string& password) {
 
   m_observerManager.notify(&IWalletLegacyObserver::initCompleted, std::error_code());
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::initWithKeys(const AccountKeys& accountKeys, const std::string& password) {
   {
     std::unique_lock<std::mutex> stateLock(m_cacheMutex);
@@ -176,7 +201,7 @@ void WalletLegacy::initWithKeys(const AccountKeys& accountKeys, const std::strin
 
   m_observerManager.notify(&IWalletLegacyObserver::initCompleted, std::error_code());
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::initAndLoad(std::istream& source, const std::string& password) {
   std::unique_lock<std::mutex> stateLock(m_cacheMutex);
 
@@ -191,7 +216,7 @@ void WalletLegacy::initAndLoad(std::istream& source, const std::string& password
   std::thread loader(&WalletLegacy::doLoad, this, std::ref(source));
   loader.detach();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::initSync() {
   AccountSubscription sub;
   sub.keys = reinterpret_cast<const AccountKeys&>(m_account.getAccountKeys());
@@ -208,7 +233,7 @@ void WalletLegacy::initSync() {
   
   m_blockchainSync.addObserver(this);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::doLoad(std::istream& source) {
   ContextCounterHolder counterHolder(m_asyncContextCounter);
   try {
@@ -240,7 +265,7 @@ void WalletLegacy::doLoad(std::istream& source) {
 
   m_observerManager.notify(&IWalletLegacyObserver::initCompleted, std::error_code());
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::shutdown() {
   {
     std::unique_lock<std::mutex> lock(m_cacheMutex);
@@ -279,7 +304,7 @@ void WalletLegacy::shutdown() {
     m_lastNotifiedPendingBalance = 0;
   }
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::reset() {
   try {
     std::error_code saveError;
@@ -302,11 +327,11 @@ void WalletLegacy::reset() {
     std::cout << "exception in reset: " << e.what() << std::endl;
   }
 }
-
+///////////////////////////////////////////////////////////////////////////////
 std::vector<Payments> WalletLegacy::getTransactionsByPaymentIds(const std::vector<PaymentId>& paymentIds) const {
   return m_transactionsCache.getTransactionsByPaymentIds(paymentIds);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::save(std::ostream& destination, bool saveDetailed, bool saveCache) {
   if(m_isStopping) {
     m_observerManager.notify(&IWalletLegacyObserver::saveCompleted, make_error_code(CryptoNote::error::OPERATION_CANCELLED));
@@ -325,7 +350,7 @@ void WalletLegacy::save(std::ostream& destination, bool saveDetailed, bool saveC
   std::thread saver(&WalletLegacy::doSave, this, std::ref(destination), saveDetailed, saveCache);
   saver.detach();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void WalletLegacy::doSave(std::ostream& destination, bool saveDetailed, bool saveCache) {
   ContextCounterHolder counterHolder(m_asyncContextCounter);
 
@@ -360,7 +385,7 @@ void WalletLegacy::doSave(std::ostream& destination, bool saveDetailed, bool sav
 
   m_observerManager.notify(&IWalletLegacyObserver::saveCompleted, std::error_code());
 }
-
+///////////////////////////////////////////////////////////////////////////////
 std::error_code WalletLegacy::changePassword(const std::string& oldPassword, const std::string& newPassword) {
   std::unique_lock<std::mutex> passLock(m_cacheMutex);
 
@@ -374,91 +399,91 @@ std::error_code WalletLegacy::changePassword(const std::string& oldPassword, con
 
   return std::error_code();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 std::string WalletLegacy::getAddress() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_currency.accountAddressAsString(m_account);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 uint64_t WalletLegacy::actualBalance() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return calculateActualBalance();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 uint64_t WalletLegacy::pendingBalance() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return calculatePendingBalance();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 uint64_t WalletLegacy::actualDepositBalance() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return calculateActualDepositBalance();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 uint64_t WalletLegacy::pendingDepositBalance() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return calculatePendingDepositBalance();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 size_t WalletLegacy::getTransactionCount() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getTransactionCount();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 size_t WalletLegacy::getTransferCount() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getTransferCount();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 size_t WalletLegacy::getDepositCount() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getDepositCount();
 }
-
+///////////////////////////////////////////////////////////////////////////////
 TransactionId WalletLegacy::findTransactionByTransferId(TransferId transferId) {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.findTransactionByTransferId(transferId);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool WalletLegacy::getTransaction(TransactionId transactionId, WalletLegacyTransaction& transaction) {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getTransaction(transactionId, transaction);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool WalletLegacy::getTransfer(TransferId transferId, WalletLegacyTransfer& transfer) {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getTransfer(transferId, transfer);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool WalletLegacy::getDeposit(DepositId depositId, Deposit& deposit) {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
 
   return m_transactionsCache.getDeposit(depositId, deposit);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 TransactionId WalletLegacy::sendTransaction(const WalletLegacyTransfer& transfer,
                                             uint64_t fee,
                                             const std::string& extra,

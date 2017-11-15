@@ -505,6 +505,8 @@ TransactionId WalletLegacy::sendTransaction(const std::vector<WalletLegacyTransf
                                             uint64_t unlockTimestamp,
                                             const std::vector<TransactionMessage>& messages,
                                             uint64_t ttl) {
+//std::cout << "WalletLegacy::sendTransaction = " << fee << std::endl;//z
+												
   TransactionId txId = 0;
   std::unique_ptr<WalletRequest> request;
   std::deque<std::unique_ptr<WalletLegacyEvent>> events;

@@ -31,7 +31,7 @@ const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=ZZL, 4=ZZP
 
 const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=ZZL, 100000000=ZZP
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1);// Transactions with less than this fee wouldn’t be accepted by daemons
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10);//The amount bellow this value will be considered as dust: ZZP=1, ZZL=10
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, ZZL=2
 
 const uint64_t REAL_COINS_LIMITED_Z                          = UINT64_C(10000000);//Total amount of coins mineable with full reward: 10000000=ZZL,10000000000=ZZP
 const uint64_t MONEY_SUPPLY_MINEABLE_Z                       = REAL_COINS_LIMITED_Z*COIN;//Total amount of atomic units mineable with full reward

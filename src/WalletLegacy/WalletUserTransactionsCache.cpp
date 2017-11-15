@@ -217,7 +217,7 @@ TransactionId WalletUserTransactionsCache::addNewTransaction(uint64_t amount,
                                                              uint64_t unlockTime,
                                                              const std::vector<TransactionMessage>& messages) {
   WalletLegacyTransaction transaction;
-
+//std::cout << "WalletUserTransactionsCache::addNewTransaction 1 = " << fee << std::endl;//z
   if (!transfers.empty()) {
     transaction.firstTransferId = insertTransfers(transfers);
   } else {

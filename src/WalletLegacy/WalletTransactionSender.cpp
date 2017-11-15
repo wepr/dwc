@@ -25,6 +25,7 @@ namespace {
 using namespace CryptoNote;
 
 uint64_t countNeededMoney(uint64_t fee, const std::vector<WalletLegacyTransfer>& transfers) {
+//std::cout << "countNeededMoney = " << fee << std::endl;//z	
   uint64_t needed_money = fee;
   for (auto& transfer: transfers) {
     throwIf(transfer.amount == 0, error::ZERO_DESTINATION);
@@ -33,7 +34,7 @@ uint64_t countNeededMoney(uint64_t fee, const std::vector<WalletLegacyTransfer>&
     needed_money += transfer.amount;
     throwIf(static_cast<int64_t>(needed_money) < transfer.amount, error::SUM_OVERFLOW);
   }
-
+//std::cout  << "needed_money = " << needed_money << std::endl;//z	
   return needed_money;
 }
 
@@ -183,6 +184,8 @@ std::unique_ptr<WalletRequest> WalletTransactionSender::makeSendRequest(Transact
                                                                         uint64_t unlockTimestamp,
                                                                         const std::vector<TransactionMessage>& messages,
                                                                         uint64_t ttl) {
+//std::cout << "WalletTransactionSender::makeSendRequest 1 = " << fee << std::endl;//z
+																			
   throwIf(transfers.empty(), error::ZERO_DESTINATION);
   validateTransfersAddresses(transfers);
   uint64_t neededMoney = countNeededMoney(fee, transfers);
@@ -191,7 +194,7 @@ std::unique_ptr<WalletRequest> WalletTransactionSender::makeSendRequest(Transact
   context->dustPolicy.dustThreshold = m_currency.defaultDustThreshold();
   context->foundMoney = selectTransfersToSend(neededMoney, 0 == mixIn, context->dustPolicy.dustThreshold, context->selectedTransfers);
   throwIf(context->foundMoney < neededMoney, error::WRONG_AMOUNT);
-
+//std::cout << "WalletTransactionSender::makeSendRequest 2 = " << fee << std::endl;//z
   transactionId = m_transactionsCache.addNewTransaction(neededMoney, fee, extra, transfers, unlockTimestamp, messages);
   context->transactionId = transactionId;
   context->mixIn = mixIn;
@@ -656,7 +659,7 @@ T popRandomValue(URNG& randomGenerator, std::vector<T>& vec) {
 uint64_t WalletTransactionSender::selectTransfersToSend(uint64_t neededMoney, bool addDust, uint64_t dust, std::vector<TransactionOutputInformation>& selectedTransfers) {
   std::vector<size_t> unusedTransfers;
   std::vector<size_t> unusedDust;
-
+//std::cout << "WalletTransactionSender::selectTransfersToSend 1 = " << neededMoney << std::endl;//z
   std::vector<TransactionOutputInformation> outputs;
   m_transferDetails.getOutputs(outputs, ITransfersContainer::IncludeKeyUnlocked);
 
@@ -687,6 +690,7 @@ uint64_t WalletTransactionSender::selectTransfersToSend(uint64_t neededMoney, bo
     foundMoney += outputs[idx].amount;
   }
 
+//std::cout << "WalletTransactionSender::selectTransfersToSend 2 = " << foundMoney << std::endl;//z
   return foundMoney;
 }
 

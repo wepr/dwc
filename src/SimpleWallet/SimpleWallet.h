@@ -45,7 +45,7 @@ namespace CryptoNote
     std::string get_commands_str();
 
     const CryptoNote::Currency& currency() const { return m_currency; }
-
+	
   private:
 
     Logging::LoggerMessage success_msg_writer(bool color = false) {
@@ -65,9 +65,6 @@ namespace CryptoNote
     bool new_wallet(const std::string &wallet_file, const std::string& password);
     bool open_wallet(const std::string &wallet_file, const std::string& password);
     bool close_wallet();
-	
-	bool try_seed(std::string& electrum_words);
-
     bool help(const std::vector<std::string> &args = std::vector<std::string>());
     bool exit(const std::vector<std::string> &args);
     bool start_mining(const std::vector<std::string> &args);
@@ -89,7 +86,10 @@ namespace CryptoNote
 
     bool ask_wallet_create_if_needed();
     std::string resolveAlias(const std::string& aliasUrl);
-
+//$$$$
+	bool try_seed(std::string& electrum_words);
+	//std::string get_tx_time_str(const WalletLegacyTransaction& txInfo);	
+//$$$$
     void printConnectionError() const;
 
     //---------------- IWalletLegacyObserver -------------------------

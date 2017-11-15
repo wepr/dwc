@@ -1,4 +1,7 @@
 Helium version:
+ Build #22 - 
+  - minimal fee issue fixed;
+  - introduced Classic and Modern wallets;
  Build #21 - 
   - wallet: list_transfers command terminated;
   - wallet: list command created created instead of list_transfers;

@@ -62,7 +62,16 @@ namespace CryptoNote
 
     bool run_console_handler();
 
-    bool new_wallet(const std::string &wallet_file, const std::string& password);
+    bool new_wallet
+	(
+		const std::string &wallet_file, 
+		const std::string& password,
+		const Crypto::SecretKey& recovery_key,
+		const Crypto::SecretKey& secondary_key,
+		bool is_recovery, 
+		bool is_copy,
+		bool is_deterministic
+	);
     bool open_wallet(const std::string &wallet_file, const std::string& password);
     bool close_wallet();
     bool help(const std::vector<std::string> &args = std::vector<std::string>());
@@ -156,12 +165,22 @@ namespace CryptoNote
     uint16_t m_daemon_port;
 
     std::string m_wallet_file;
-
-    std::string m_electrum_seed;  // electrum-style seed parameter
-    Crypto::SecretKey m_recovery_key;  // recovery key (used as random for wallet gen)
-    bool m_restore_deterministic_wallet;  // recover flag
-    //bool m_non_deterministic;  // old 2-random generation	
+//$$$$	
+	//Crypto::SecretKey m_common_recovery_key; //key to use in recovery
+    bool m_is_recovery_mode;  // recovery mode, not new wallet
+	bool m_is_copy; // is direct keys copy mode
+    bool m_restore_seed;  // recovery by mnemoseed flag
+    bool m_restore_keys;  // recovery by hexadecimal wallet keys flag
+    bool m_restore_legacy;  // recovery by old-style recovery key flag
+    bool m_classic;  // old 2-random non_deterministic wallet generation	
+    std::string m_seed;  // electrum-style seed parameter
+    std::string m_legacy_key;  // old-style recovery key string
+    std::string m_spend_key;  // Private Spend key string
+    std::string m_view_key;  // Private View key string
 	
+    Crypto::SecretKey m_spend_secret_key;  // Private Spend Key
+    Crypto::SecretKey m_view_secret_key;  // Private View Key
+//$$$$	
     std::unique_ptr<std::promise<std::error_code>> m_initResultPromise;
 
     Common::ConsoleHandler m_consoleHandler;

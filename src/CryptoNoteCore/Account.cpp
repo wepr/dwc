@@ -36,7 +36,7 @@ void AccountBase::serialize(ISerializer &s) {
   s(m_creation_timestamp, "m_creation_timestamp");
 }
 //-----------------------------------------------------------------
-Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& recovery_key, bool is_recovery, bool is_deterministic)
+Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& recovery_key, const Crypto::SecretKey& secondary_key, bool is_recovery, bool is_copy, bool is_deterministic)
 {
     Crypto::SecretKey like_seed = 
 		generate_keys_or_recover(
@@ -47,14 +47,16 @@ Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& reco
 
     //rng for generating second set of keys is hash of like_seed rng
 	//means only one set of electrum-style words needed for recovery
-    Crypto::SecretKey secret_vk;
 	
-    keccak((uint8_t *)&like_seed, sizeof(Crypto::SecretKey), (uint8_t *)&secret_vk, sizeof(Crypto::SecretKey));
+	if (!is_copy) {
+		keccak((uint8_t *)&like_seed, sizeof(Crypto::SecretKey), (uint8_t *)&secondary_key, sizeof(Crypto::SecretKey));
+		is_deterministic = 0;
+	}
 
     generate_keys_or_recover(
 		m_keys.address.viewPublicKey, 
 		m_keys.viewSecretKey, 
-		secret_vk, 
+		secondary_key, 
 		is_deterministic);
 
 	struct tm timestamp;

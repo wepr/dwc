@@ -146,7 +146,9 @@ void WalletLegacy::initAndGenerateOrRecover
 	(
 		const std::string& password, 
 		const Crypto::SecretKey& recovery_key,
+		const Crypto::SecretKey& secondary_key,
 		bool is_recovery, 
+		bool is_copy, 
 		bool is_deterministic
 	) 
 {
@@ -158,7 +160,7 @@ void WalletLegacy::initAndGenerateOrRecover
       throw std::system_error(make_error_code(error::ALREADY_INITIALIZED));
     }
 
-    m_account.generate_or_recover(recovery_key, is_recovery, is_deterministic);
+    m_account.generate_or_recover(recovery_key, secondary_key, is_recovery, is_copy, is_deterministic);
     m_password = password;
 
     initSync();

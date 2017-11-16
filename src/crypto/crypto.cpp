@@ -87,7 +87,15 @@ SecretKey crypto_ops::generate_keys_or_recover
     ge_scalarmult_base(&point, reinterpret_cast<unsigned char*>(&sec));
     ge_p3_tobytes(reinterpret_cast<unsigned char*>(&pub), &point);
   }
-
+//////////////////////////////////////////////////////////////////////  
+bool crypto_ops::check_skey(const SecretKey &key) {
+    ge_p3 point;
+    if (sc_check(reinterpret_cast<const unsigned char*>(&key)) != 0) {
+      return false;
+    }
+	return true;
+}
+//////////////////////////////////////////////////////////////////////  
   bool crypto_ops::check_key(const PublicKey &key) {
     ge_p3 point;
     return ge_frombytes_vartime(&point, reinterpret_cast<const unsigned char*>(&key)) == 0;

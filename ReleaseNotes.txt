@@ -1,15 +1,22 @@
+Lithium version:
+ Build #24
+  - wallet: restore wallets by seed;
+  - wallet: restore wallets by keys;  
+
 Helium version:
- Build #22 - 
+ Build #23
+  - wallet: you can choose between MODERN and CLASSIC wallet while creating;
+ Build #22
   - minimal fee issue fixed;
   - introduced Classic and Modern wallets;
- Build #21 - 
+ Build #21
   - wallet: list_transfers command terminated;
   - wallet: list command created created instead of list_transfers;
   - wallet: incoming_transfers command terminated;
   - wallet: incoming command created instead of incoming_transfers;
   - wallet: comments command print all transaction's comments;  
   - wallet: seed command shows wallet's seed;  
- Build #19 - 
+ Build #19
   - linux compiling errors fixed;
   - wallet: view keys;
   - wallet: keys backup while new wallet creation;

@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
     // configure logging
     logManager.configure(buildLoggerConfiguration(cfgLogLevel, cfgLogFile));
 
-    logger(INFO) << CryptoNote::CRYPTONOTE_NAME << " daemon " << PROJECT_VERSION_LONG;
+    logger(INFO,CYAN) << CryptoNote::CRYPTONOTE_NAME << " daemon " << PROJECT_VERSION_LONG;
 
     if (command_line_preprocessor(vm, logger)) {
       return 0;
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
 
     bool testnet_mode = command_line::get_arg(vm, arg_testnet_on);
     if (testnet_mode) {
-      logger(INFO) << "Starting in testnet mode!";
+      logger(INFO,BRIGHT_MAGENTA) << "Starting in testnet mode!";
     }
 
     //create objects and link them

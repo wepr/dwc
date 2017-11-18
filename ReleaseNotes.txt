@@ -1,4 +1,7 @@
 Lithium version:
+ Build #25
+  - wallet: paper wallets generation;
+  - linux CMake errors fixed;
  Build #24
   - wallet: restore wallets by seed;
   - wallet: restore wallets by keys;  

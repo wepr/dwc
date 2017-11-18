@@ -393,9 +393,21 @@ const size_t FEE_MAX_WIDTH = 14;
 const size_t BLOCK_MAX_WIDTH = 7;
 const size_t UNLOCK_TIME_MAX_WIDTH = 11;
 ///////////////////////////////////////////////////////////////////////////////
+std::string get_now_time_str() {
+	char timeString[20];
+	time_t now = time(0);
+	struct tm tstruct;
+    tstruct = *localtime(&now);
+	
+	if (std::strftime(timeString, sizeof(timeString), "%Y-%m-%d-%H-%M-%S", &tstruct) == 0) 
+		{
+			throw std::runtime_error("time buffer is too small");
+		}
+	return std::string(timeString);
+}
+///////////////////////////////////////////////////////////////////////////////
 // get_tx_time_str(txInfo)
-std::string get_tx_time_str(const WalletLegacyTransaction& txInfo) 
-{
+std::string get_tx_time_str(const WalletLegacyTransaction& txInfo) {
 	char timeString[20];
 	time_t timestamp = static_cast<time_t>(txInfo.timestamp);
 
@@ -404,7 +416,23 @@ std::string get_tx_time_str(const WalletLegacyTransaction& txInfo)
 			throw std::runtime_error("time buffer is too small");
 		}
 	return std::string(timeString);
-}////////////////////////////////////////////////////////////////////////////////
+}
+///////////////////////////////////////////////////////////////////////////////
+void print_keys_to_stream(const AccountKeys keys, const std::string _s, bool _is_to_file, std::ostream& _stream) {
+	
+	std::string lend = "";
+	
+	if (_is_to_file) {
+		lend = "\r\n";
+	}
+
+	_stream << lend << std::endl << yellow << _s << lend << std::endl << lend << std::endl
+		<< maroon << Common::podToHex(keys.spendSecretKey) << red << " - PRIVATE spend key" << lend << std::endl
+		<< purple << Common::podToHex(keys.viewSecretKey) << magenta << " - PRIVATE view key" << lend << std::endl
+		<< green << Common::podToHex(keys.address.spendPublicKey) << lime << " - PUBLIC spend key" << lend << std::endl
+		<< teal << Common::podToHex(keys.address.viewPublicKey) << cyan << " - PUBLIC view key" << lend << std::endl << lend << std::endl;
+}
+////////////////////////////////////////////////////////////////////////////////
 void printListTransfersHeader(LoggerRef& logger) {
   std::string header = makeCenteredString(TIMESTAMP_MAX_WIDTH, "timestamp") + "  ";
   header += makeCenteredString(HASH_MAX_WIDTH, "hash") + "  ";
@@ -490,15 +518,13 @@ bool writeBackupFile
 	const std::string& address,
 	const std::string& wall,
 	const std::string& pass,
-	const std::string& vsk,
-	const std::string& ssk,
-	const std::string& vpk,
-	const std::string& spk,
+	const AccountKeys keys,
 	bool success,
 	const std::string& electrum_words
 	) 
 {
 	std::ofstream backupFile(backupFilename, std::ios::out | std::ios::trunc | std::ios::binary);
+	
 	if (!backupFile.good()) 
 	{
 		return false;
@@ -510,21 +536,17 @@ bool writeBackupFile
 	backupFile << 
 		wall << " - wallet file\r\n" << 
 		pass << " - password\r\n" << 
-		address << " - address\r\n\r\n" << 
-		vsk << " - view secret key\r\n" << 
-		ssk << " - spend secret key\r\n" << 
-		vpk << " - view public key\r\n" << 
-		spk << " - spend public key\r\n";
+		address << " - address\r\n\r\n";
+		
+	print_keys_to_stream(keys, "Keys are: ", 1, backupFile);
 
-		if (success) 
-			{
-				backupFile << "\r\nThe wallet is MODERN, it has the recovery mnemonic seed: " << electrum_words << "\r\n";		
-			}
-		else
-			{
-				backupFile << "\r\nThe wallet is CLASSIC.\r\n";
-			}	
-
+	if (success) {
+		backupFile << "\r\nThe wallet is MODERN, it has the recovery mnemonic seed: " << electrum_words << "\r\n";		
+	}
+	else {
+		backupFile << "\r\nThe wallet is CLASSIC.\r\n";
+	}	
+	
 	backupFile << "-------------------------------------------------------------\r\n";
 
 	return true;
@@ -617,7 +639,71 @@ bool askAliasesTransfersConfirmation(const std::map<std::string, std::vector<Wal
 }
 
 }
+///////////////////////////////////////////////////////////////////////////////
+bool simple_wallet::print_paper_wallet_to_stream(bool _is_to_file, std::ostream& _stream) {
+	
+	std::string lend = "";
+	
+	if (_is_to_file) {
+		lend = "\r\n";
+	}
+	
+	std::string electrum_words;
+	std::string password = "*****";
 
+	try {
+		std::unique_ptr<CryptoNote::IWalletLegacy> sunduk;
+		Crypto::SecretKey rkey;
+		AccountKeys skeys;
+		
+		sunduk.reset(new WalletLegacy(m_currency, *m_node.get()));
+		sunduk->initAndGenerateOrRecover(password,rkey,rkey,0,0,1);
+		
+		sunduk->getAccountKeys(skeys);
+		bool success = try_seed(electrum_words,skeys);
+
+		_stream << std::endl << yellow <<  "Paper wallet ADDRESS is: " << lend << lend << std::endl << std::endl << grey; 	
+		_stream << m_wallet->getAddress()<< std::endl << lend << std::endl << grey; 
+		
+		print_keys_to_stream(skeys, "Paper wallet KEYS are: ", _is_to_file, _stream);
+
+		if (success) 
+		{
+			_stream << yellow << "Paper wallet SEED is: "
+				<< lend << std::endl << lend << std::endl << teal << electrum_words << lend << lend << std::endl << std::endl;      
+		}
+		else
+		{
+			_stream << std::endl << red 
+				<< "The wallet is CLASSIC, no seed." << lend << lend << std::endl << std::endl;
+		}
+	}
+	catch (const std::exception& e) {
+		fail_msg_writer() << "failed to generate paper wallet: " << e.what();
+		return false;
+	}		
+		
+	return true;
+}
+///////////////////////////////////////////////////////////////////////////////
+bool simple_wallet::print_paper_wallet(const std::string _file_name) {
+		
+	if (!_file_name.empty()) {
+	
+		std::ofstream paperFile(_file_name, std::ios::out | std::ios::trunc | std::ios::binary);
+		
+		if (!paperFile.good()) 
+		{
+			return false;
+		}
+		
+		return print_paper_wallet_to_stream(1,paperFile);
+	}
+	else {
+		return print_paper_wallet_to_stream(0,std::cout);
+	}
+}
+///////////////////////////////////////////////////////////////////////////////
 std::string simple_wallet::get_commands_str() {
   std::stringstream ss;
   ss << "Commands: " << ENDL;
@@ -663,7 +749,8 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
     "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
   m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
   m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet's public address");
-  m_consoleHandler.setHandler("ass", boost::bind(&simple_wallet::ass, this, _1), "Temporary debug interface");
+  m_consoleHandler.setHandler("paper", boost::bind(&simple_wallet::paper, this, _1), "Show a new paper wallet data");
+  m_consoleHandler.setHandler("paper_prn", boost::bind(&simple_wallet::paper_prn, this, _1), "Save a new paper wallet data to a file");
   m_consoleHandler.setHandler("keys", boost::bind(&simple_wallet::print_keys, this, _1), "Show current wallet's keys");
   m_consoleHandler.setHandler("seed", boost::bind(&simple_wallet::print_seed, this, _1), "Show current wallet's recovery seed");
   m_consoleHandler.setHandler("save", boost::bind(&simple_wallet::save, this, _1), "Save wallet synchronized data");
@@ -745,7 +832,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 	}
 
     if (c == 'E' || c == 'e') 
-		{
+		{			
 			return false;
 		}
 
@@ -985,17 +1072,14 @@ if (m_restore_legacy) //legacy restore
     m_wallet->getAccountKeys(keys);
 		
 	std::string electrum_words;
-	bool success = try_seed(electrum_words);
+	bool success = try_seed(electrum_words,keys);
 		
     if (!writeBackupFile(
 							walletBackupFile, 
 							m_wallet->getAddress(),
 							walletFileName,
 							pwd_container.password(),
-							Common::podToHex(keys.viewSecretKey),
-							Common::podToHex(keys.spendSecretKey),
-							Common::podToHex(keys.address.viewPublicKey),
-							Common::podToHex(keys.address.spendPublicKey),
+							keys,
 							success,
 							electrum_words
 						)
@@ -1109,7 +1193,7 @@ bool simple_wallet::new_wallet
 	logger(INFO, CYAN)  << "Wallet address is: " << m_wallet->getAddress() << std::endl;
 	
 	std::string electrum_words;
-	bool success = try_seed(electrum_words);
+	bool success = try_seed(electrum_words,keys);
 	if (success) 
 		{
 			std::cout << std::endl << lime << "The wallet is MODERN." << std::endl << grey;		
@@ -1610,31 +1694,28 @@ bool simple_wallet::print_keys(const std::vector<std::string> &args)
     AccountKeys keys;
     m_wallet->getAccountKeys(keys);
 
-	std::cout << std::endl << yellow 
+	std::cout << std::endl << magenta 
 		<< "!!! AHTUNG !!!" << std::endl << std::endl << teal 
 		<< "The following 2 upper keys can be used to recover access to your wallet." << std::endl 
 		<< "Please write them down and store them somewhere safe and secure." << std::endl 
 		<< "Please do not store them in your email or on file storage services outside of your immediate control." << std::endl;
 
-			
-	std::cout << std::endl
-		<< maroon << Common::podToHex(keys.spendSecretKey) << red << " - PRIVATE spend key" << std::endl
-		<< purple << Common::podToHex(keys.viewSecretKey) << magenta << " - PRIVATE view key" << std::endl
-		<< green << Common::podToHex(keys.address.spendPublicKey) << lime << " - PUBLIC spend key" << std::endl
-		<< teal << Common::podToHex(keys.address.viewPublicKey) << cyan << " - PUBLIC view key" << std::endl << std::endl;
-		
+	print_keys_to_stream(keys, "Keys are: ", 0, std::cout);
+	
 	return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::print_seed(const std::vector<std::string> &args) 
 {
 	std::string electrum_words;
+    AccountKeys keys;
+    m_wallet->getAccountKeys(keys);
 
-	bool success = try_seed(electrum_words);
+	bool success = try_seed(electrum_words,keys);
 
 	if (success) 
 	{
-		std::cout << std::endl << yellow 
+		std::cout << std::endl << magenta 
 			<< "!!! AHTUNG !!!" << std::endl << std::endl << teal 
 			<< "The following 24 words can be used to recover access to your wallet." << std::endl 
 			<< "Please write them down and store them somewhere safe and secure." << std::endl 
@@ -1654,11 +1735,8 @@ bool simple_wallet::print_seed(const std::vector<std::string> &args)
 }
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
-bool simple_wallet::try_seed(std::string& electrum_words)
+bool simple_wallet::try_seed(std::string& electrum_words, AccountKeys keys)
 {
-    AccountKeys keys;
-    m_wallet->getAccountKeys(keys);
-
 	Crypto::ElectrumWords::bytes_to_words(keys.spendSecretKey, electrum_words);	
 	Crypto::SecretKey second;
 	
@@ -1671,78 +1749,21 @@ bool simple_wallet::try_seed(std::string& electrum_words)
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::print_address(const std::vector<std::string> &args) 
 {
-	std::cout << std::endl << yellow <<  "ADDRESS:" << std::endl << std::endl << grey; 	
+	std::cout << std::endl << yellow << "ADDRESS:" << std::endl << std::endl << grey; 	
 	std::cout << m_wallet->getAddress()<< std::endl << std::endl << grey; 
 	return true;
 }
 //----------------------------------------------------------------------------------------------------
-bool simple_wallet::ass(const std::vector<std::string> &args) 
+bool simple_wallet::paper(const std::vector<std::string> &args) 
 {
-/*
-std::cout 
-	<< grey << "@#$%&" << white << "@#$%&" << navy << "@#$%&" << green << "@#$%&" << teal << "@#$%&" << maroon 
-	<< "@#$%&" << purple << "@#$%&" << blue << "@#$%&" << lime << "@#$%&" << cyan << "@#$%&" << red << "@#$%&" 
-	<< magenta << "@#$%&" << khaki << "@#$%&" << yellow << "@#$%&" << std::endl;
-*/
-return true;
-	
-std::unique_ptr<CryptoNote::IWalletLegacy> sunduk;
-std::string password = "123456";
-bool is_determ;
- 
-	try 
-		{
-			std::unique_ptr<CryptoNote::IWalletLegacy> sunduk;
-			std::string password = "123456";
-			Crypto::SecretKey rkey;
-
-			sunduk.reset(new WalletLegacy(m_currency, *m_node.get()));
-			sunduk->initAndGenerateOrRecover(password,rkey,rkey,0,0,1);
-			
-			//return false;
-			AccountKeys skeys;
-			sunduk->getAccountKeys(skeys);
-			
-			std::cout << yellow << "Sunduk keys are:\r\n";
-			logger(INFO, RED) << Common::podToHex(skeys.spendSecretKey) << " - PRIVATE spend key";
-			logger(INFO, MAGENTA) << Common::podToHex(skeys.viewSecretKey) << " - PRIVATE view key";
-			logger(INFO, GREEN) << Common::podToHex(skeys.address.spendPublicKey) << " - PUBLIC spend key";
-			logger(INFO, CYAN) << Common::podToHex(skeys.address.viewPublicKey) << " - PUBLIC view key\r\n";
-
-			
-	Crypto::SecretKey second;
-	
-	keccak((uint8_t *)&skeys.spendSecretKey, sizeof(Crypto::SecretKey), (uint8_t *)&second, sizeof(Crypto::SecretKey));
-	logger(INFO, BRIGHT_BLUE) << Common::podToHex(second) << " - keccak second" ;
-	sc_reduce32((uint8_t *)&second);
-	logger(INFO, BRIGHT_YELLOW) << Common::podToHex(second) << " - keccak + sc_reduce32 second" ;
-	
-	is_determ = memcmp(second.data,skeys.viewSecretKey.data, sizeof(Crypto::SecretKey)) == 0;	
-			
-	if (is_determ)
-		logger(INFO, GREEN) << "yep!!!";
-	else
-		logger(INFO, RED) << "nope :(";
-			
-			
-			
-
-
-
-		}
-	catch (const std::exception& e) 
-		{
-		fail_msg_writer() << "failed to generate new wallet: " << e.what();
-		return false;
-		}		
-		
-		
-		
-		
-		
-		
-		
-	return true;
+	return print_paper_wallet("");
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::paper_prn(const std::vector<std::string> &args) 
+{
+	std::string fn = get_now_time_str()+"-paper-wallet.txt";
+	std::cout << std::endl << teal << "Paper wallet stored in: " << cyan << fn << teal << " file." << std::endl << grey; 	
+	return print_paper_wallet(fn);
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::process_command(const std::vector<std::string> &args) {

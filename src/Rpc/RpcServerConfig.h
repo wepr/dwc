@@ -21,6 +21,7 @@ public:
 
   std::string bindIp;
   uint16_t bindPort;
+  bool is_public_node;
 };
 
 }

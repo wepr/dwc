@@ -82,7 +82,8 @@ namespace CryptoNote
     bool show_incoming_transfers(const std::vector<std::string> &args);
     bool show_payments(const std::vector<std::string> &args);
     bool show_blockchain_height(const std::vector<std::string> &args);
-    bool ass(const std::vector<std::string> &args);
+    bool paper(const std::vector<std::string> &args);
+    bool paper_prn(const std::vector<std::string> &args);
     bool listTransfers(const std::vector<std::string> &args);
     bool listComments(const std::vector<std::string> &args);
     bool transfer(const std::vector<std::string> &args);
@@ -96,7 +97,11 @@ namespace CryptoNote
     bool ask_wallet_create_if_needed();
     std::string resolveAlias(const std::string& aliasUrl);
 //$$$$
-	bool try_seed(std::string& electrum_words);
+	bool try_seed(std::string& electrum_words, AccountKeys keys);
+	bool print_paper_wallet_to_stream(bool _is_to_file, std::ostream& _stream);
+	bool print_paper_wallet(const std::string _file_name);
+
+	
 	//std::string get_tx_time_str(const WalletLegacyTransaction& txInfo);	
 //$$$$
     void printConnectionError() const;

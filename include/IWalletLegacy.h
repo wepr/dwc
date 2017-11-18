@@ -111,7 +111,9 @@ public:
 	(
 		const std::string& password, 
 		const Crypto::SecretKey& recovery_key,
+		const Crypto::SecretKey& secondary_key,
 		bool is_recovery, 
+		bool is_copy, 
 		bool is_deterministic
 	) = 0;
 	

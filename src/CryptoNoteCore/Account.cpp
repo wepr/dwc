@@ -48,9 +48,14 @@ Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& reco
     //rng for generating second set of keys is hash of like_seed rng
 	//means only one set of electrum-style words needed for recovery
 	
+	// is_recovery = 0 >> Gen RND spendSecretKey ELSE use recovery_key
+	// is_copy = 0 >> secondary_key=KECCAK ELSE secondary_key untouched
+	// is_deterministic = 0 >> Gen RND viewSecretKey else use secondary_key
 	if (!is_copy) {
 		keccak((uint8_t *)&like_seed, sizeof(Crypto::SecretKey), (uint8_t *)&secondary_key, sizeof(Crypto::SecretKey));
-		is_deterministic = 0;
+	}
+	else {
+		is_deterministic = 1;
 	}
 
     generate_keys_or_recover(

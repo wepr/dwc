@@ -19,7 +19,7 @@ namespace CryptoNote {
   public:
     AccountBase();
     void generate();
-	Crypto::SecretKey AccountBase::generate_or_recover(const Crypto::SecretKey& recovery_key, const Crypto::SecretKey& secondary_key, bool is_recovery, bool is_copy, bool is_deterministic);
+	Crypto::SecretKey generate_or_recover(const Crypto::SecretKey& recovery_key, const Crypto::SecretKey& secondary_key, bool is_recovery, bool is_copy, bool is_deterministic);
 
     const AccountKeys& getAccountKeys() const;
     void setAccountKeys(const AccountKeys& keys);

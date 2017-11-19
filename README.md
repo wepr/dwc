@@ -15,19 +15,25 @@ You have to install follow software:
 
 #### MSVC 2015 Community Edition 
 http://download.microsoft.com/download/0/B/C/0BC321A4-013F-479C-84E6-4A2F90B11269/vs2015.com_enu.iso
+
 !!! IMPORTANT !!!
+
 You will need to uninstall vs2015 update3 then install vs2015 rtm!
+
 Make sure to uncheck box "Visual Studio 2015 Update 3" else update 3 will be downloaded automatically!!!
 
 #### CMake 2.8.6 or later
+
 https://cmake.org/files/v3.10/cmake-3.10.0-rc5-win64-x64.msi
 
 #### Boost 1.56 or later
+
 https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
 or
 https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.zip
 
 Download source code from:
+
 https://github.com/monselice/ZZL
 or clone from Github
 git clone https://github.com/monselice/ZZL.git zzl
@@ -58,7 +64,7 @@ Alternatively, it may be possible to install them using a package manager.
 To build:
 Run these commands:
 
-------------
+```
 sudo apt install git
 sudo apt install cmake
 sudo apt install build-essential
@@ -79,7 +85,7 @@ cd build
 cmake ..
 cd ..
 make
-------------
+```
 
 The resulting executables can be found in `zzl/build/release/src`.
 

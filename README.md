@@ -136,14 +136,7 @@ Run these commands:
 sudo apt install git
 sudo apt install cmake
 sudo apt install build-essential
-### DOWNLOAD BOOST >> https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.tar.bz2
-tar --bzip2 -xf ~/Downloads/boost_1_65_1.tar.bz2
-
-cd ~
-mkdir boost
-cd boost
-cd boost/boost_1_65_1
-./bootstrap.sh
+sudo apt install libboost-dev libboost-all-dev 
 
 cd ~
 git clone https://github.com/monselice/ZZL.git zzl
@@ -156,5 +149,3 @@ make
 ```
 
 The resulting executables can be found in `zzl/build/release/src`.
-
-

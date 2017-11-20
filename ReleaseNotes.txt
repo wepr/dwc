@@ -1,4 +1,7 @@
 Lithium version:
+ Build #27
+  - miner: hashrate calculation;
+  - miner: round time calculation;
  Build #25
   - wallet: paper wallets generation;
   - linux CMake errors fixed;

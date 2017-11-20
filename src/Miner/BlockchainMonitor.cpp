@@ -27,7 +27,7 @@ BlockchainMonitor::BlockchainMonitor(System::Dispatcher& dispatcher, const std::
 
   m_httpEvent.set();
 }
-
+//////////////////////////////////////////////////////////////////////////
 void BlockchainMonitor::waitBlockchainUpdate() {
   m_logger(Logging::DEBUGGING) << "Waiting for blockchain updates";
   m_stopped = false;
@@ -53,7 +53,7 @@ void BlockchainMonitor::waitBlockchainUpdate() {
     throw System::InterruptedException();
   }
 }
-
+//////////////////////////////////////////////////////////////////////////
 void BlockchainMonitor::stop() {
   m_logger(Logging::DEBUGGING) << "Sending stop signal to blockchain monitor";
   m_stopped = true;
@@ -61,7 +61,7 @@ void BlockchainMonitor::stop() {
   m_sleepingContext.interrupt();
   m_sleepingContext.wait();
 }
-
+//////////////////////////////////////////////////////////////////////////
 Crypto::Hash BlockchainMonitor::requestLastBlockHash() {
   m_logger(Logging::DEBUGGING) << "Requesting last block hash";
 
@@ -91,3 +91,4 @@ Crypto::Hash BlockchainMonitor::requestLastBlockHash() {
     throw;
   }
 }
+//////////////////////////////////////////////////////////////////////////

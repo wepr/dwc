@@ -9,6 +9,8 @@
 //	<< magenta << "@#$%&" << khaki << "@#$%&" << yellow << "@#$%&" << std::endl;
 //#############################################################################
 #pragma once
+
+#include <iosfwd>
 #include <iostream>
 /*
 enum colors_enum

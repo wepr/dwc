@@ -20,6 +20,9 @@
 #include "Rpc/CoreRpcServerCommandsDefinitions.h"
 #include "Rpc/JsonRpc.h"
 
+#include <Logging/LoggerManager.h>
+
+
 using namespace CryptoNote;
 
 namespace Miner {
@@ -71,7 +74,7 @@ MinerManager::MinerManager(System::Dispatcher& dispatcher, const CryptoNote::Min
 
 MinerManager::~MinerManager() {
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::start() {
 	m_logger(Logging::INFO) << CryptoNote::CRYPTONOTE_NAME << " miner " << PROJECT_VERSION_LONG;
   m_logger(Logging::DEBUGGING) << "starting";
@@ -98,7 +101,7 @@ void MinerManager::start() {
 
   eventLoop();
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::eventLoop() {
   size_t blocksMined = 0;
 
@@ -146,7 +149,7 @@ void MinerManager::eventLoop() {
     }
   }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 MinerEvent MinerManager::waitEvent() {
   while(m_events.empty()) {
     m_eventOccurred.wait();
@@ -158,12 +161,12 @@ MinerEvent MinerManager::waitEvent() {
 
   return event;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::pushEvent(MinerEvent&& event) {
   m_events.push(std::move(event));
   m_eventOccurred.set();
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::startMining(const CryptoNote::BlockMiningParameters& params) {
   m_contextGroup.spawn([this, params] () {
     try {
@@ -175,11 +178,11 @@ void MinerManager::startMining(const CryptoNote::BlockMiningParameters& params) 
     }
   });
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::stopMining() {
   m_miner.stop();
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::startBlockchainMonitoring() {
   m_contextGroup.spawn([this] () {
     try {
@@ -191,11 +194,11 @@ void MinerManager::startBlockchainMonitoring() {
     }
   });
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::stopBlockchainMonitoring() {
   m_blockchainMonitor.stop();
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 bool MinerManager::submitBlock(const Block& minedBlock, const std::string& daemonHost, uint16_t daemonPort) {
   try {
     HttpClient client(m_dispatcher, daemonHost, daemonPort);
@@ -217,7 +220,7 @@ bool MinerManager::submitBlock(const Block& minedBlock, const std::string& daemo
     return false;
   }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 BlockMiningParameters MinerManager::requestMiningParameters(System::Dispatcher& dispatcher, const std::string& daemonHost, uint16_t daemonPort, const std::string& miningAddress) {
   try {
     HttpClient client(dispatcher, daemonHost, daemonPort);
@@ -249,8 +252,7 @@ BlockMiningParameters MinerManager::requestMiningParameters(System::Dispatcher& 
     throw;
   }
 }
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void MinerManager::adjustBlockTemplate(CryptoNote::Block& blockTemplate) const {
   adjustMergeMiningTag(blockTemplate);
 
@@ -265,5 +267,6 @@ void MinerManager::adjustBlockTemplate(CryptoNote::Block& blockTemplate) const {
     blockTemplate.timestamp = m_lastBlockTimestamp + m_config.blockTimestampInterval;
   }
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 } //namespace Miner

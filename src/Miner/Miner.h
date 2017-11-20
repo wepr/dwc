@@ -6,6 +6,8 @@
 #pragma once
 
 #include <atomic>
+#include <list>
+#include <mutex>
 #include <thread>
 
 #include <System/Dispatcher.h>
@@ -16,6 +18,7 @@
 #include "CryptoNoteCore/Difficulty.h"
 
 #include "Logging/LoggerRef.h"
+#include "CryptoNoteCore/OnceInInterval.h"
 
 namespace CryptoNote {
 
@@ -37,7 +40,17 @@ public:
 private:
   System::Dispatcher& m_dispatcher;
   System::Event m_miningStopped;
-
+//$$$$
+    OnceInInterval m_update_merge_hr_interval;
+    bool m_do_print_hashrate;
+    std::atomic<uint64_t> m_last_hr_merge_time;
+    std::atomic<uint64_t> m_prev_block_time;
+    std::atomic<uint64_t> m_hashes_total;
+    std::atomic<uint64_t> m_hashes;
+    std::atomic<uint64_t> m_current_hash_rate;
+    std::mutex m_last_hash_rates_lock;
+    std::list<uint64_t> m_last_hash_rates;	
+//$$$$
   enum class MiningState : uint8_t { MINING_STOPPED, BLOCK_FOUND, MINING_IN_PROGRESS};
   std::atomic<MiningState> m_state;
 
@@ -50,6 +63,10 @@ private:
   void runWorkers(BlockMiningParameters blockMiningParameters, size_t threadCount);
   void workerFunc(const Block& blockTemplate, difficulty_type difficulty, uint32_t nonceStep);
   bool setStateBlockFound();
+//$$$$
+    void  merge_hr();
+//$$$$
+  
 };
 
 } //namespace CryptoNote

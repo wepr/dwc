@@ -1,6 +1,6 @@
 Beryllium version:
  Build #29
-  - core: Difficulty algo changed to prevent huge botnets attacks;
+  - core: Difficulty algo changed to prevent botnets attacks;
   
 Lithium version:
  Build #27

@@ -748,7 +748,9 @@ difficulty_type Currency::nextDifficulty(
 			return nextDifficultyZawy(timestamps, cumulativeDifficulties, parameters::DIFFICULTY_ZAWY_WINDOW);
 			break;
 		}
-	}	
+	}
+	
+	return 0;
 }		
 //******************************************************************************************************************
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,

@@ -98,10 +98,10 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
         new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount)))
       );
-
+		std::cout << navy << ".";
       blockMiningParameters.blockTemplate.nonce++;
     }
-
+	std::cout << grey << std::endl;
     m_workers.clear();
 
   } catch (std::exception& e) {

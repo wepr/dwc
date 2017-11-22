@@ -18,6 +18,9 @@
 #include "TransactionExtra.h"
 #include "UpgradeDetector.h"
 
+#include "Common/ConsoleTools.h"
+#include "rainbow.h"
+
 #undef ERROR
 
 using namespace Logging;
@@ -584,58 +587,170 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 
   return Common::fromString(strAmount, amount);
 }
+//******************************************************************************************************************
+difficulty_type Currency::nextDifficultyOld(
+	std::vector<uint64_t> timestamps,
+	std::vector<difficulty_type> cumulativeDifficulties, 
+	size_t height) const {
 
-difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
-  std::vector<difficulty_type> cumulativeDifficulties, size_t height) const {
-  assert(m_difficultyWindow >= 2);
+//#1	
+	assert(m_difficultyWindow >= 2);
 
-  if (timestamps.size() > m_difficultyWindow) {
-    timestamps.resize(m_difficultyWindow);
-    cumulativeDifficulties.resize(m_difficultyWindow);
-  }
+	if (timestamps.size() > m_difficultyWindow) {
+		timestamps.resize(m_difficultyWindow);
+		cumulativeDifficulties.resize(m_difficultyWindow);
+	}
 
-  size_t length = timestamps.size();
-  assert(length == cumulativeDifficulties.size());
-  assert(length <= m_difficultyWindow);
-  if (length <= 1) {
-    return 1;
-  }
+	size_t length = timestamps.size();
+	assert(length == cumulativeDifficulties.size());
+	assert(length <= m_difficultyWindow);
+	if (length <= 1) {
+		return 1;
+	}
 
-  sort(timestamps.begin(), timestamps.end());
+	sort(timestamps.begin(), timestamps.end());
 
-  size_t cutBegin, cutEnd;
-  assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
-  if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
-    cutBegin = 0;
-    cutEnd = length;
-  } else {
-    cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
-    cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
-  }
-  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
-  uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
-  if (timeSpan == 0) {
-    timeSpan = 1;
-  }
+	size_t cutBegin, cutEnd;
+//#2  
+	assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
+	
+	if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
+		cutBegin = 0;
+		cutEnd = length;
+	} 
+	else {
+		cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
+		cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
+	}
+//#3  
+	assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+	
+	uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
+	if (timeSpan == 0) {
+		timeSpan = 1;
+	}
+//#4
+	difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
+	assert(totalWork > 0);
 
-  difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
-  assert(totalWork > 0);
-
-  uint64_t low, high;
-  low = mul128(totalWork, m_difficultyTarget, &high);
-  if (high != 0 || low + timeSpan - 1 < low) {
-    return 0;
-  }
-
+	uint64_t low, high;
+	low = mul128(totalWork, m_difficultyTarget, &high);
+//#5  
+	if (high != 0 || low + timeSpan - 1 < low) {
+		return 0;
+	}
+//#6
 	difficulty_type new_diff = (low + timeSpan - 1) / timeSpan;
+//std::cout << green << "DIFF BASE: " << new_diff << std::endl;
 	if (height>(parameters::UPGRADE_HEIGHT_V4+1)) 
 		{
-		new_diff += new_diff*((parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY+height)/parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY);
+		new_diff += new_diff*(
+			(parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY+height)/parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY);
 		}
+//std::cout << maroon << "DIFF UPGR: " << new_diff << std::endl;		
 	return new_diff;
-  
 }
+//******************************************************************************************************************
+//******************************************************************************************************************
+difficulty_type Currency::nextDifficultyZawy(
+	std::vector<uint64_t> _timestamps,
+	std::vector<difficulty_type> _cumulativeDifficulties,
+	size_t _difficultyWindow) const {
 
+	size_t z_difficultyCut = 0;
+	
+//#1
+    assert(_difficultyWindow >= 2);
+
+    size_t t_difficultyWindow = _difficultyWindow;
+	
+    if (_difficultyWindow > _timestamps.size()) {
+		t_difficultyWindow = _timestamps.size();
+    }
+	
+    std::vector<uint64_t> _timestamps_tmp(_timestamps.end() - t_difficultyWindow, _timestamps.end());
+    std::vector<uint64_t> _cumulativeDifficulties_tmp(_cumulativeDifficulties.end() - t_difficultyWindow, _cumulativeDifficulties.end());
+
+    size_t length = _timestamps_tmp.size();
+	
+    assert(length == _cumulativeDifficulties_tmp.size());
+    assert(length <= _difficultyWindow);
+	
+    if (length <= 1) {
+		return 1;
+    }
+
+    sort(_timestamps_tmp.begin(), _timestamps_tmp.end());
+	
+	size_t cutBegin, cutEnd;
+	
+//#2
+    assert(2 * z_difficultyCut <= _difficultyWindow - 2);
+	
+    if (length <= _difficultyWindow - 2 * z_difficultyCut) {
+		cutBegin = 0;
+		cutEnd = length;
+    } else {
+		cutBegin = (length - (_difficultyWindow - 2 * z_difficultyCut) + 1) / 2;
+		cutEnd = cutBegin + (_difficultyWindow - 2 * z_difficultyCut);
+    }
+//#3	
+    assert(cutBegin + 2 <= cutEnd && cutEnd <= length);
+	
+    uint64_t timeSpan = _timestamps_tmp[cutEnd - 1] - _timestamps_tmp[cutBegin];
+	
+    if (timeSpan == 0) {
+		timeSpan = 1;
+    }
+//#4
+    difficulty_type totalWork = _cumulativeDifficulties_tmp[cutEnd - 1] - _cumulativeDifficulties_tmp[cutBegin];
+    assert(totalWork > 0);
+
+	uint64_t low, high;
+	
+    low = mul128(totalWork, m_difficultyTarget, &high);
+//#5	
+    if (high != 0 || std::numeric_limits<uint64_t>::max() - low < (timeSpan - 1)) {
+		return 0;
+    }
+	
+    uint64_t nextDiffZ = low / timeSpan;
+//std::cout << khaki << "DIFF Z-" << _difficultyWindow << ": " << nextDiffZ << grey << std::endl;	
+    return nextDiffZ;
+}
+//******************************************************************************************************************
+//******************************************************************************************************************
+difficulty_type Currency::nextDifficulty(
+	std::vector<uint64_t> timestamps,
+	std::vector<difficulty_type> cumulativeDifficulties, 
+	size_t height) const {
+//std::cout << std::endl;		
+//std::cout << grey << "HEIGHT = " << height << std::endl;
+	size_t ver = 1;
+
+	if (parameters::DIFFICULTY_FNC_VER < 2 && height < parameters::DIFFICULTY_ZAWY_START_BLOCK) {
+		ver = 1;
+	}
+	else {
+		ver = 2;
+	}
+	
+	if (parameters::DIFFICULTY_FNC_VER > 1) {
+		ver = 2;
+	}
+	
+	switch (ver) {
+		case 1: {
+			return nextDifficultyOld(timestamps, cumulativeDifficulties, height);
+			break;
+		}
+		case 2: {
+			return nextDifficultyZawy(timestamps, cumulativeDifficulties, parameters::DIFFICULTY_ZAWY_WINDOW);
+			break;
+		}
+	}	
+}		
+//******************************************************************************************************************
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
   Crypto::Hash& proofOfWork) const {
   if (block.majorVersion > BLOCK_MAJOR_VERSION_2) {

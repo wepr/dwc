@@ -43,17 +43,22 @@ const size_t   RUSH_REWARD_LOCK_Z                            = 750000;//Premium 
 
 const uint64_t DIFFICULTY_TARGET                             = 20;//Difficulty target is an ideal time period between blocks, in seconds. 20=ZZL, 720=ZZP
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
-//const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY/3*2; // blocks
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY/12; // blocks
 const size_t   DIFFICULTY_CUT                                = 60;//Timestamps to cut after sorting
 const size_t   DIFFICULTY_LAG                                = 20;//Lag of calculating the difficulty in terms of blocks
+
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
+
+const size_t   DIFFICULTY_FNC_VER                            = 0;//0=ZZL, 2=ZZP
+const uint32_t DIFFICULTY_ZAWY_START_BLOCK                   = 24000;//24000=ZZL, 1=ZZP
+const size_t   DIFFICULTY_ZAWY_WINDOW                        = 30;//30=ZZL, 12=ZZP
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 11000;
 const uint32_t DEPOSIT_MAX_TERM                              = 10 * 12 * 11000;
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 77000;
 const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 11;
+
 static_assert(DEPOSIT_MIN_TERM > 0, "Bad DEPOSIT_MIN_TERM");
 static_assert(DEPOSIT_MIN_TERM <= DEPOSIT_MAX_TERM, "Bad DEPOSIT_MAX_TERM");
 static_assert(DEPOSIT_MIN_TERM * DEPOSIT_MAX_TOTAL_RATE > DEPOSIT_MIN_TOTAL_RATE_FACTOR, "Bad DEPOSIT_MIN_TOTAL_RATE_FACTOR or DEPOSIT_MAX_TOTAL_RATE");

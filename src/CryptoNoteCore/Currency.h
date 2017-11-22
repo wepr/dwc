@@ -117,8 +117,10 @@ public:
   std::string formatAmount(int64_t amount) const;
   bool parseAmount(const std::string& str, uint64_t& amount) const;
 
-  difficulty_type nextDifficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties, size_t height) const;
-
+	difficulty_type nextDifficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties, size_t height) const;
+	difficulty_type nextDifficultyOld(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties, size_t height) const;
+	difficulty_type nextDifficultyZawy(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties, size_t _difficultyWindow) const;
+	
   bool checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
   bool checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
   bool checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
@@ -133,7 +135,6 @@ private:
 
   bool generateGenesisBlock();
   uint64_t baseRewardFunction(uint64_t alreadyGeneratedCoins, uint32_t height, const Crypto::Hash last_BlockHash = NULL_HASH) const;
-//	uint64_t Currency::Lottery(const Crypto::Hash lbh) const;
 	uint64_t Lottery(const Crypto::Hash lbh) const;
 private:
   uint64_t m_maxBlockHeight;

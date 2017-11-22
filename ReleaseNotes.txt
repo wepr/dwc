@@ -1,3 +1,7 @@
+Beryllium version:
+ Build #29
+  - core: Difficulty algo changed to prevent huge botnets attacks;
+  
 Lithium version:
  Build #27
   - miner: hashrate calculation;

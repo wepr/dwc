@@ -867,7 +867,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
     }
   }
 
-  return m_currency.nextDifficulty(timestamps, commulative_difficulties,bei.height);
+  return m_currency.nextDifficulty(timestamps, commulative_difficulties, bei.height);
 }
 
 bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) {

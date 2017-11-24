@@ -557,7 +557,25 @@ std::error_code NodeRpcProxy::doQueryBlocksLite(const std::vector<Crypto::Hash>&
 
   return std::error_code();
 }
+/*
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+std::error_code NodeRpcProxy::doGetBlocks(const std::vector<Crypto::Hash>& blockHashes, std::vector<BlockDetails>& blocks) {
+	
+  COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::request req = AUTO_VAL_INIT(req);
+  COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::response resp = AUTO_VAL_INIT(resp);
 
+  req.blockHashes = blockHashes;
+
+  std::error_code ec = binaryCommand("/get_blocks_details_by_hashes.bin", req, resp);
+  if (ec) {
+    return ec;
+  }
+
+  blocks = std::move(resp.blocks);
+  return ec;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
 std::error_code NodeRpcProxy::doGetPoolSymmetricDifference(std::vector<Crypto::Hash>&& knownPoolTxIds, Crypto::Hash knownBlockId, bool& isBcActual,
         std::vector<std::unique_ptr<ITransactionReader>>& newTxs, std::vector<Crypto::Hash>& deletedTxIds) {
   CryptoNote::COMMAND_RPC_GET_POOL_CHANGES_LITE::request req = AUTO_VAL_INIT(req);

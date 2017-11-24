@@ -13,11 +13,15 @@
 
 #include "crypto/crypto.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
+#include "CryptoNoteConfig.h"
 
 #include <System/InterruptedException.h>
 
+#include "CryptoNote.h"
+
 #include "Common/ConsoleTools.h"
-#include "rainbow.h"
+#include "zrainbow.h"
+#include "ztime.h"
 
 namespace CryptoNote {
 
@@ -83,11 +87,19 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
 	
 	assert(threadCount > 0);
 
-	//if(m_hashes>0) {
-	//	m_update_merge_hr_interval.call([&](){ merge_hr(); return true;});
-	//}
- 
-	std::cout << khaki << "Difficulty: " << yellow << blockMiningParameters.difficulty << grey << std::endl;
+	uint32_t height = boost::get<BaseInput>(blockMiningParameters.blockTemplate.baseTransaction.inputs.front()).blockIndex;
+
+	uint64_t hr = blockMiningParameters.difficulty / CryptoNote::parameters::DIFFICULTY_TARGET;
+	float khr = static_cast<float>(hr)/static_cast<float>(1000);
+	
+	std::cout 
+		<< khaki << "Network: "
+		<< std::setprecision(2) << std::fixed << std::setw(9) << yellow << khr << khaki << " KH/s hashrate," 
+		<< " block is " << yellow << height
+		<< khaki << " @ " << z_get_now_time_str("%Y-%m-%d %H:%M:%S")
+		<< khaki << ", difficulty is " << blockMiningParameters.difficulty 
+		<< grey << std::endl;
+		
 	m_update_merge_hr_interval.call([&](){ merge_hr(); return true;});
 	m_prev_block_time = millisecondsSinceEpoch();
     
@@ -98,7 +110,7 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
         new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, threadCount)))
       );
-		std::cout << navy << ".";
+		std::cout << navy << "-";
       blockMiningParameters.blockTemplate.nonce++;
     }
 	std::cout << grey << std::endl;
@@ -113,42 +125,45 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void Miner::workerFunc(const Block& blockTemplate, difficulty_type difficulty, uint32_t nonceStep) {
-  try {
-    Block block = blockTemplate;
-    Crypto::cn_context cryptoContext;
+	try {
+		Block block = blockTemplate;
+		Crypto::cn_context cryptoContext;
 
-    while (m_state == MiningState::MINING_IN_PROGRESS) {
-      Crypto::Hash hash;
-      if (!get_block_longhash(cryptoContext, block, hash)) {
-        //error occured
-        m_logger(Logging::DEBUGGING, Logging::RED) << "calculating long hash error occured";
-        m_state = MiningState::MINING_STOPPED;
-		
-        return;
-      }
+		while (m_state == MiningState::MINING_IN_PROGRESS) {
+			
+			Crypto::Hash hash;
+			
+			if (!get_block_longhash(cryptoContext, block, hash)) { //error occured		
+			
+				m_logger(Logging::DEBUGGING, Logging::RED) << "calculating long hash error occured";
+				m_state = MiningState::MINING_STOPPED;
+				return;
+			}
 
-      if (check_hash(hash, difficulty)) {
-        m_logger(Logging::INFO, Logging::YELLOW) << "Found block for difficulty " << difficulty;
+			if (check_hash(hash, difficulty)) {
+				
+				std::cout << yellow << "Block found for difficulty: " << red << difficulty << grey << std::endl;
 
-        if (!setStateBlockFound()) {
-          m_logger(Logging::DEBUGGING, Logging::RED) << "block is already found or mining stopped";
-          return;
-        }
+				if (!setStateBlockFound()) {
+					
+					m_logger(Logging::DEBUGGING, Logging::RED) << "Block is already found or mining stopped";
+					return;
+				}
 
-        m_block = block;
-        return;
-      }
+				m_block = block;
+				return;
+			}
 
-      block.nonce += nonceStep;
-//$$$$
-	  ++m_hashes;
-	  
-//$$$$
-    }
-  } catch (std::exception& e) {
-    m_logger(Logging::ERROR, Logging::BRIGHT_RED) << "Miner got error: " << e.what();
-    m_state = MiningState::MINING_STOPPED;
-  }
+			block.nonce += nonceStep;
+			//$$$$
+			++m_hashes;
+			//$$$$
+		}
+	}
+	catch (std::exception& e) {
+		m_logger(Logging::ERROR, Logging::BRIGHT_RED) << "Miner got error: " << e.what();
+		m_state = MiningState::MINING_STOPPED;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void Miner::merge_hr() {
@@ -164,16 +179,26 @@ void Miner::merge_hr() {
 		m_last_hash_rates.pop_front();
 
 		uint64_t total_hr = std::accumulate(m_last_hash_rates.begin(), m_last_hash_rates.end(), static_cast<uint64_t>(0));
-		float hr = static_cast<float>(total_hr)/static_cast<float>(m_last_hash_rates.size());
+			
+		float hr = (static_cast<float>(total_hr)/static_cast<float>(m_last_hash_rates.size())/1000);
+		
+		uint32_t prec;
+		if (hr < 0.09) {
+			prec = 3;
+		}
+		else {
+			prec = 2;
+		}
+		
 		std::cout 
-			<< green << "Hashrate:   " << std::setprecision(2) << std::fixed << lime << hr << green 
-			<< " KH/s, total " << lime << m_hashes_total << green 
-			<< " hashes, time spent is: " 
+			<< green << "Miner:   " << std::setprecision(prec) << std::fixed << std::setw(9) << lime << hr << green 
+			<< " KH/s hashrate, " << lime << m_hashes_total << green 
+			<< " hashes mined total, the time spent is " 
 			<< std::setprecision(0) << lime << ((millisecondsSinceEpoch() - m_prev_block_time)/1000)
-			<< green << " s" << grey << std::endl;
+			<< green << " sec." << grey << std::endl;
 	}
 	else { 
-		std::cout << green << "Hashrate:   " << maroon << "No stats yet" << grey << std::endl;
+		std::cout << green << "Miner:      " << maroon << "No stats yet" << grey << std::endl;
 	}
 
 	m_last_hr_merge_time = millisecondsSinceEpoch();

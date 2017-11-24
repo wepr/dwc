@@ -1,3 +1,9 @@
+Boron version:
+ Build #31
+  - daemon: GETBLOCKHASH method JSON RPC error fixed;
+  - daemon: statistic details added;
+  - core: fixed old Ubuntu 17 compilng bug in rs_comm_size function.
+  
 Beryllium version:
  Build #29
   - core: Difficulty algo changed to prevent botnets attacks;

@@ -14,6 +14,10 @@
 #include "version.h"
 #include "CryptoNoteConfig.h"
 
+#include "Common/ConsoleTools.h"
+#include "zrainbow.h"
+#include "ztime.h"
+
 namespace {
   template <typename T>
   static bool print_as_json(const T& obj) {
@@ -249,12 +253,20 @@ bool DaemonCommandsHandler::print_stat(const std::vector<std::string>& args) {
   uint64_t totalCoinsInNetwork = m_core.coinsEmittedAtHeight(height);
   uint64_t totalCoinsOnDeposits = m_core.depositAmountAtHeight(height);
   uint64_t amountOfActiveCoins = totalCoinsInNetwork - totalCoinsOnDeposits;
-
   const auto& currency = m_core.currency();
-  std::cout << "Block height: " << height << std::endl;
-  std::cout << "Block difficulty: " << m_core.difficultyAtHeight(height) << std::endl;
-  std::cout << "Network hashrate: " << (uint64_t) m_core.difficultyAtHeight(height) / CryptoNote::parameters::DIFFICULTY_TARGET << " H/s" << std::endl;
-  std::cout << "Total coins in network:  " << currency.formatAmount(totalCoinsInNetwork) << std::endl;
+//$$$$
+  uint64_t hr = m_core.difficultyAtHeight(height) / CryptoNote::parameters::DIFFICULTY_TARGET;
+  float khr = static_cast<float>(hr)/static_cast<float>(1000);
+  
+  std::cout 
+	  << std::endl << khaki 
+	  << "Blockchain height: " << teal << height << khaki << std::endl
+	  << "Block difficulty:  " << teal << m_core.difficultyAtHeight(height) << khaki << std::endl
+	  << "Network hashrate:  " << std::setprecision(2) << std::fixed << cyan << khr << teal << " KH/s" << " = " << hr << " H/s" << khaki << std::endl
+	  << "Coins in network:  " << teal << currency.formatAmount(totalCoinsInNetwork) << khaki << std::endl
+	  << "Current time is:   " << teal << z_get_now_time_str("%Y-%m-%d %H:%M:%S") 
+	  << grey << std::endl << std::endl;
+  
 //  std::cout << "Total coins on deposits: " << currency.formatAmount(totalCoinsOnDeposits) <<
 //    " (" << currency.formatAmount(calculatePercent(currency, totalCoinsOnDeposits, totalCoinsInNetwork)) << "%)" << std::endl;
 //  std::cout << "Amount of active coins:  " << currency.formatAmount(amountOfActiveCoins) <<

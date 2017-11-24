@@ -379,10 +379,13 @@ bool crypto_ops::check_skey(const SecretKey &key) {
       EllipticCurvePoint a, b;
     } ab[];
   };
-
-  static inline size_t rs_comm_size(size_t pubs_count) {
-    return sizeof(rs_comm) + pubs_count * sizeof(rs_comm().ab[0]);
-  }
+	
+static inline size_t rs_comm_size(size_t pubs_count) {
+//$$$$
+//    return sizeof(rs_comm) + pubs_count * sizeof(rs_comm().ab[0]);
+    return sizeof(rs_comm) + pubs_count * 2 * sizeof(EllipticCurvePoint); /* BEWARE: Dependent on rs_comm definition above! */
+//$$$$
+}
 
   void crypto_ops::generate_ring_signature(const Hash &prefix_hash, const KeyImage &image,
     const PublicKey *const *pubs, size_t pubs_count,

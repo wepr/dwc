@@ -39,7 +39,9 @@
 
 #include <Logging/LoggerManager.h>
 
-#include "rainbow.h"
+#include "Common/ConsoleTools.h"
+#include "zrainbow.h"
+#include "ztime.h"
 
 #if defined(WIN32)
 #include <crtdbg.h>
@@ -392,6 +394,7 @@ const size_t TOTAL_AMOUNT_MAX_WIDTH = 20;
 const size_t FEE_MAX_WIDTH = 14;
 const size_t BLOCK_MAX_WIDTH = 7;
 const size_t UNLOCK_TIME_MAX_WIDTH = 11;
+/*
 ///////////////////////////////////////////////////////////////////////////////
 std::string get_now_time_str() {
 	char timeString[20];
@@ -406,6 +409,7 @@ std::string get_now_time_str() {
 	return std::string(timeString);
 }
 ///////////////////////////////////////////////////////////////////////////////
+*/
 // get_tx_time_str(txInfo)
 std::string get_tx_time_str(const WalletLegacyTransaction& txInfo) {
 	char timeString[20];
@@ -1761,7 +1765,7 @@ bool simple_wallet::paper(const std::vector<std::string> &args)
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::paper_prn(const std::vector<std::string> &args) 
 {
-	std::string fn = get_now_time_str()+"-paper-wallet.txt";
+	std::string fn = z_get_now_time_str("%Y-%m-%d-%H-%M-%S")+"-paper-wallet.txt";
 	std::cout << std::endl << teal << "Paper wallet stored in: " << cyan << fn << teal << " file." << std::endl << grey; 	
 	return print_paper_wallet(fn);
 }

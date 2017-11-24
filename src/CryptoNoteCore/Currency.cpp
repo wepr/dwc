@@ -19,7 +19,7 @@
 #include "UpgradeDetector.h"
 
 #include "Common/ConsoleTools.h"
-#include "rainbow.h"
+#include "zrainbow.h"
 
 #undef ERROR
 

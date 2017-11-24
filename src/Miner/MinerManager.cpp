@@ -21,6 +21,8 @@
 #include "Rpc/JsonRpc.h"
 
 #include <Logging/LoggerManager.h>
+#include "Common/ConsoleTools.h"
+#include "zrainbow.h"
 
 
 using namespace CryptoNote;
@@ -200,25 +202,29 @@ void MinerManager::stopBlockchainMonitoring() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 bool MinerManager::submitBlock(const Block& minedBlock, const std::string& daemonHost, uint16_t daemonPort) {
-  try {
-    HttpClient client(m_dispatcher, daemonHost, daemonPort);
+	
+	try {
+		HttpClient client(m_dispatcher, daemonHost, daemonPort);
 
-    COMMAND_RPC_SUBMITBLOCK::request request;
-    request.emplace_back(Common::toHex(toBinaryArray(minedBlock)));
+		COMMAND_RPC_SUBMITBLOCK::request request;
+		request.emplace_back(Common::toHex(toBinaryArray(minedBlock)));
 
-    COMMAND_RPC_SUBMITBLOCK::response response;
+		COMMAND_RPC_SUBMITBLOCK::response response;
 
-    System::EventLock lk(m_httpEvent);
-    JsonRpc::invokeJsonRpcCommand(client, "submitblock", request, response);
+		System::EventLock lk(m_httpEvent);
+		JsonRpc::invokeJsonRpcCommand(client, "submitblock", request, response);
 
-    m_logger(Logging::INFO, Logging::BRIGHT_MAGENTA) << "Block has been successfully submitted !!!!!";
-    m_logger(Logging::INFO, Logging::MAGENTA) << "Block hash: " << Common::podToHex(get_block_hash(minedBlock));
-    return true;
-  } catch (std::exception& e) {
-    m_logger(Logging::WARNING, Logging::BRIGHT_CYAN) << "Couldn't submit block: " << Common::podToHex(get_block_hash(minedBlock)); 
-    m_logger(Logging::WARNING, Logging::CYAN) << "Reason: " << e.what() << " - probably too late :(";
-    return false;
-  }
+		std::cout << magenta << "Block has been successfully submitted !!!!!" << grey << std::endl;
+		std::cout << purple  << "Block hash: " << Common::podToHex(get_block_hash(minedBlock)) << grey << std::endl;
+		
+		return true;
+	} 
+	catch (std::exception& e) {
+		std::cout << cyan << "Couldn't submit block: " << Common::podToHex(get_block_hash(minedBlock)) << grey << std::endl; 
+		std::cout << teal << "Reason: " << e.what() << " - probably too late :(" << grey << std::endl;
+		
+		return false;
+	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 BlockMiningParameters MinerManager::requestMiningParameters(System::Dispatcher& dispatcher, const std::string& daemonHost, uint16_t daemonPort, const std::string& miningAddress) {

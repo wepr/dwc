@@ -54,4 +54,3 @@ Start miner.bat.
 Another way - just type:
 	start_mining your_zzl_wallet_address threads_count
 inside daemon's app window, where your_zzl_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.
-

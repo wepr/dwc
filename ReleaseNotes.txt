@@ -1,4 +1,6 @@
 Boron version:
+ Build #34
+  - daemon: TRANSACTION_JSON JSON RPC method added;
  Build #33
   - daemon: BLOCK_JSON JSON RPC method added;
  Build #32

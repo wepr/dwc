@@ -119,52 +119,55 @@ void RpcServer::processRequest(const HttpRequest& request, HttpResponse& respons
 
 bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& response) {
 
-  using namespace JsonRpc;
+	using namespace JsonRpc;
 
-  response.addHeader("Content-Type", "application/json");
+	response.addHeader("Content-Type", "application/json");
 
-  JsonRpcRequest jsonRequest;
-  JsonRpcResponse jsonResponse;
+	JsonRpcRequest jsonRequest;
+	JsonRpcResponse jsonResponse;
 
-  try {
-    logger(TRACE) << "JSON-RPC request: " << request.getBody();
-    jsonRequest.parseRequest(request.getBody());
-    jsonResponse.setId(jsonRequest.getId()); // copy id
+	try {
+		logger(TRACE) << "JSON-RPC request: " << request.getBody();
+		jsonRequest.parseRequest(request.getBody());
+		jsonResponse.setId(jsonRequest.getId()); // copy id
 
-    static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
-		{ "blocks_list_json", { makeMemberMethod(&RpcServer::on_blocks_list_json), false } },
-		{ "block_json", { makeMemberMethod(&RpcServer::on_block_json), false } },
-	  
-		{ "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
-      { "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
-      { "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
-      { "getcurrencyid", { makeMemberMethod(&RpcServer::on_get_currency_id), true } },
-      { "submitblock", { makeMemberMethod(&RpcServer::on_submitblock), false } },
-      { "getlastblockheader", { makeMemberMethod(&RpcServer::on_get_last_block_header), false } },
-      { "getblockheaderbyhash", { makeMemberMethod(&RpcServer::on_get_block_header_by_hash), false } },
-      { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } }
-    };
-//bool RpcServer::on_blocks_list_json(const COMMAND_RPC_GET_BLOCKS_LIST::request& req, COMMAND_RPC_GET_BLOCKS_LIST::response& res)
-    auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
-    if (it == jsonRpcHandlers.end()) {
-      throw JsonRpcError(JsonRpc::errMethodNotFound);
-    }
+		static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
+			{ "blocks_list_json", { makeMemberMethod(&RpcServer::on_blocks_list_json), false } },
+			{ "block_json", { makeMemberMethod(&RpcServer::on_block_json), false } },
+			{ "transaction_json", { makeMemberMethod(&RpcServer::on_transaction_json), false } },
+		  
+			{ "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
+			{ "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
+			{ "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
+			{ "getcurrencyid", { makeMemberMethod(&RpcServer::on_get_currency_id), true } },
+			{ "submitblock", { makeMemberMethod(&RpcServer::on_submitblock), false } },
+			{ "getlastblockheader", { makeMemberMethod(&RpcServer::on_get_last_block_header), false } },
+			{ "getblockheaderbyhash", { makeMemberMethod(&RpcServer::on_get_block_header_by_hash), false } },
+			{ "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } }
+		};
+	//bool RpcServer::on_blocks_list_json(const COMMAND_RPC_GET_BLOCKS_LIST::request& req, COMMAND_RPC_GET_BLOCKS_LIST::response& res)
+		auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
+		if (it == jsonRpcHandlers.end()) {
+		  throw JsonRpcError(JsonRpc::errMethodNotFound);
+		}
 
-    if (!it->second.allowBusyCore && !isCoreReady()) {
-      throw JsonRpcError(CORE_RPC_ERROR_CODE_CORE_BUSY, "Core is busy");
-    }
+		if (!it->second.allowBusyCore && !isCoreReady()) {
+		  throw JsonRpcError(CORE_RPC_ERROR_CODE_CORE_BUSY, "Core is busy");
+		}
 
-    it->second.handler(this, jsonRequest, jsonResponse);
+		it->second.handler(this, jsonRequest, jsonResponse);
 
-  } catch (const JsonRpcError& err) {
-    jsonResponse.setError(err);
-  } catch (const std::exception& e) {
-    jsonResponse.setError(JsonRpcError(JsonRpc::errInternalError, e.what()));
-  }
+	} 
+	catch (const JsonRpcError& err) {
+		jsonResponse.setError(err);
+	} 
+	catch (const std::exception& e) {
+		jsonResponse.setError(JsonRpcError(JsonRpc::errInternalError, e.what()));
+	}
 
-  response.setBody(jsonResponse.getBody());
-  logger(TRACE) << "JSON-RPC response: " << jsonResponse.getBody();
-  return true;
+	response.setBody(jsonResponse.getBody());
+	logger(TRACE) << "JSON-RPC response: " << jsonResponse.getBody();
+	return true;
 }
 
 bool RpcServer::isCoreReady() {
@@ -310,11 +313,122 @@ bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::re
 
   return true;
 }
-
-//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // JSON handlers
-//
-//------------------------------------------------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+bool RpcServer::on_transaction_json(const COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
+	
+	Hash hash;
+
+	if (!parse_hash256(req.hash, hash)) {
+		throw JsonRpc::JsonRpcError {
+			CORE_RPC_ERROR_CODE_WRONG_PARAM,
+			"Failed to parse hex representation of transaction hash. Hex = " + req.hash + '.' 
+		};
+	}
+
+	std::vector<Crypto::Hash> tx_ids;
+	tx_ids.push_back(hash);
+
+	std::list<Crypto::Hash> missed_txs;
+	std::list<Transaction> txs;
+	m_core.getTransactions(tx_ids, txs, missed_txs);
+
+	if (1 == txs.size()) {
+		res.tx = txs.front();
+	} 
+	else {
+		throw JsonRpc::JsonRpcError {
+			CORE_RPC_ERROR_CODE_WRONG_PARAM,
+			"transaction wasn't found. Hash = " + req.hash + '.' 
+		};
+	}
+
+	Crypto::Hash blockHash;
+	uint32_t blockHeight;
+  
+	if (m_core.getBlockContainingTx(hash, blockHash, blockHeight)) {
+		
+		Block blk;
+		
+		if (m_core.getBlockByHash(blockHash, blk)) {
+			
+			size_t tx_cumulative_block_size;
+			m_core.getBlockSize(blockHash, tx_cumulative_block_size);
+			size_t blokBlobSize = getObjectBinarySize(blk);
+			size_t minerTxBlobSize = getObjectBinarySize(blk.baseTransaction);
+			
+			block_short_response block_short;
+
+			block_short.cumul_size = blokBlobSize + tx_cumulative_block_size - minerTxBlobSize;
+			block_short.timestamp = blk.timestamp;
+			block_short.height = blockHeight;
+			block_short.hash = Common::podToHex(blockHash);
+			block_short.cumul_size = blokBlobSize + tx_cumulative_block_size - minerTxBlobSize;
+			block_short.tx_count = blk.transactionHashes.size() + 1;
+			res.block = block_short;
+		}
+	}
+
+	uint64_t amount_in = 0;
+	get_inputs_money_amount(res.tx, amount_in);
+	uint64_t amount_out = get_outs_money_amount(res.tx);
+
+	res.txDetails.hash = Common::podToHex(getObjectHash(res.tx));
+	
+	if (amount_in == 0)
+		res.txDetails.fee = 0;
+	else {
+		res.txDetails.fee = 
+			amount_in < amount_out + parameters::MINIMUM_FEE //account for interest in output, it always has minimum fee
+			? parameters::MINIMUM_FEE 
+			: amount_in - amount_out;
+	}
+	
+	res.txDetails.amount_out = amount_out;
+	res.txDetails.size = getObjectBinarySize(res.tx);
+
+	uint64_t mixin;
+	
+	if (!getMixin(res.tx, mixin)) {
+		return false;
+	}
+	
+	res.txDetails.mixin = mixin;
+
+	Crypto::Hash paymentId;
+	
+	if (CryptoNote::getPaymentIdFromTxExtra(res.tx.extra, paymentId)) {
+		res.txDetails.paymentId = Common::podToHex(paymentId);
+	} 
+	else {
+		res.txDetails.paymentId = "";
+	}
+
+	res.status = CORE_RPC_STATUS_OK;
+	return true;
+}
+////////////////////////////////////////////////////////////////////////////////
+bool RpcServer::getMixin(const Transaction& transaction, uint64_t& mixin) {
+	
+	mixin = 0;
+	
+	for (const TransactionInput& txin : transaction.inputs) {
+		if (txin.type() != typeid(KeyInput)) {
+			continue;
+		}
+		
+		uint64_t currentMixin = boost::get<KeyInput>(txin).outputIndexes.size();
+		if (currentMixin > mixin) {
+			mixin = currentMixin;
+		}
+	}
+	return true;
+}
+////////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_blocks_list_json(const COMMAND_RPC_GET_BLOCKS_LIST::request& req, COMMAND_RPC_GET_BLOCKS_LIST::response& res) {
 	
 	if (m_core.get_current_blockchain_height() <= req.height) {

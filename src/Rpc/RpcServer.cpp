@@ -132,7 +132,9 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
     jsonResponse.setId(jsonRequest.getId()); // copy id
 
     static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
-      { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
+		{ "blocks_list_json", { makeMemberMethod(&RpcServer::on_blocks_list_json), false } },
+	  
+		{ "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
       { "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
       { "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
       { "getcurrencyid", { makeMemberMethod(&RpcServer::on_get_currency_id), true } },
@@ -141,7 +143,7 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "getblockheaderbyhash", { makeMemberMethod(&RpcServer::on_get_block_header_by_hash), false } },
       { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } }
     };
-
+//bool RpcServer::on_blocks_list_json(const COMMAND_RPC_GET_BLOCKS_LIST::request& req, COMMAND_RPC_GET_BLOCKS_LIST::response& res)
     auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
     if (it == jsonRpcHandlers.end()) {
       throw JsonRpcError(JsonRpc::errMethodNotFound);
@@ -311,7 +313,58 @@ bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::re
 //
 // JSON handlers
 //
+//------------------------------------------------------------------------------------------------------------------------------
+bool RpcServer::on_blocks_list_json(const COMMAND_RPC_GET_BLOCKS_LIST::request& req, COMMAND_RPC_GET_BLOCKS_LIST::response& res) {
+	
+	if (m_core.get_current_blockchain_height() <= req.height) {
+		throw JsonRpc::JsonRpcError{ 
+			CORE_RPC_ERROR_CODE_TOO_BIG_HEIGHT,
+			std::string("To big height: ") + std::to_string(req.height) + ", current blockchain height = " + std::to_string(m_core.get_current_blockchain_height()) 
+		};
+	}
 
+	uint32_t print_blocks_count = 30;
+	uint32_t last_height = req.height - print_blocks_count;
+
+	if (req.height <= print_blocks_count)  {
+		last_height = 0;
+	} 
+
+	for (uint32_t i = req.height; i >= last_height; i--) {
+		
+		Hash block_hash = m_core.getBlockIdByHeight(static_cast<uint32_t>(i));
+		Block blk;
+		
+		if (!m_core.getBlockByHash(block_hash, blk)) {
+			throw JsonRpc::JsonRpcError{
+				CORE_RPC_ERROR_CODE_INTERNAL_ERROR,
+				"Internal error: can't get block by height. Height = " + std::to_string(i) + '.' 
+			};
+		}
+
+		size_t tx_cumulative_block_size;
+		m_core.getBlockSize(block_hash, tx_cumulative_block_size);
+		size_t blokBlobSize = getObjectBinarySize(blk);
+		size_t minerTxBlobSize = getObjectBinarySize(blk.baseTransaction);
+
+		block_short_response block_short;
+		block_short.cumul_size = blokBlobSize + tx_cumulative_block_size - minerTxBlobSize;
+		block_short.timestamp = blk.timestamp;
+		block_short.height = i;
+		m_core.getBlockDifficulty(static_cast<uint32_t>(block_short.height), block_short.difficulty);
+		block_short.hash = Common::podToHex(block_hash);
+		block_short.tx_count = blk.transactionHashes.size() + 1;
+
+		res.blocks.push_back(block_short);
+
+		if (i == 0)
+			break;
+	}
+
+  res.status = CORE_RPC_STATUS_OK;
+  return true;
+}
+////////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_get_info(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RPC_GET_INFO::response& res) {
   res.height = m_core.get_current_blockchain_height();
   res.difficulty = m_core.getNextBlockDifficulty();

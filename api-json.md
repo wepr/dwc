@@ -35,13 +35,17 @@ Returns block hash by its height.
 	"jsonrpc": "2.0",
 	"id": "test",
 	"method": "getblockhash",
-	"params": {
-		"height": 12345
-	}
+	"params": [12345]
 }
 ```
+
 ### getblockhash output:
 ```
+{
+	"id": "test",
+	"jsonrpc": "2.0",
+	"result": "21eac691daa478dbbc3f941db0c8d5213db37035307258a164e0aa167c8b93ee"
+}
 ```
 
 ## GETBLOCKTEMPLATE
@@ -111,8 +115,17 @@ Submits mined block.
 	"params": ["0100b...."]
 }
 ```
+
 ### submitblock output:
 ```
+{
+	"error": {
+		"code": -6,
+		"message": "Wrong block blob"
+	},
+	"id": "test",
+	"jsonrpc": "2.0"
+}
 ```
 
 ## GETLASTBLOCKHEADER
@@ -224,6 +237,50 @@ Returns block header by given block height.
 			"reward": 100000000,
 			"timestamp": 1510151512
 		},
+		"status": "OK"
+	}
+}
+```
+## BLOCKS_LIST_JSON
+
+Returns last 30 blocks info by given block height.
+
+### blocks_list_json input:
+```
+{
+	"jsonrpc": "2.0",
+	"id": "test",
+	"method": "blocks_list_json",
+	"params": {
+		"height": 12345
+	}
+}
+```
+### blocks_list_json output:
+```
+{
+	"id": "test",
+	"jsonrpc": "2.0",
+	"result": {
+		"blocks": [{
+			"cumul_size": 198,
+			"difficulty": 12180680,
+			"hash": "21eac691daa478dbbc3f941db0c8d5213db37035307258a164e0aa167c8b93ee",
+			"height": 12345,
+			"timestamp": 1510151512,
+			"tx_count": 1
+		},
+
+		*****
+		
+		{
+			"cumul_size": 198,
+			"difficulty": 11143280,
+			"hash": "969fb7516d5dd1f3acc88b49e1fdf5282c36d8c09fed2df89f08ef400c314ca9",
+			"height": 12315,
+			"timestamp": 1510148973,
+			"tx_count": 1
+		}],
 		"status": "OK"
 	}
 }

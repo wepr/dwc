@@ -1,8 +1,11 @@
 Boron version:
+ Build #32
+  - daemon: BLOCKS_LIST_JSON JSON RPC method added;
  Build #31
   - daemon: GETBLOCKHASH method JSON RPC error fixed;
   - daemon: statistic details added;
   - core: fixed old Ubuntu 17 compilng bug in rs_comm_size function.
+  - daemon: fixed STOP_DAEMON HTTP RPC method;
   
 Beryllium version:
  Build #29

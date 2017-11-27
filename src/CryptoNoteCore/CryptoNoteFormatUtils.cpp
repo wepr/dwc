@@ -459,7 +459,27 @@ bool get_block_hash(const Block& b, Hash& res) {
 
   return getObjectHash(ba, res);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
+bool get_inputs_money_amount(const Transaction& tx, uint64_t& money) {
+	money = 0;
 
+	for (const auto& in : tx.inputs) {
+		
+		uint64_t amount = 0;
+
+		if (in.type() == typeid(KeyInput)) {
+			amount = boost::get<KeyInput>(in).amount;
+		}
+		else if (in.type() == typeid(MultisignatureInput)) {
+			amount = boost::get<MultisignatureInput>(in).amount;
+		}
+
+		money += amount;
+	}
+	
+	return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////
 Hash get_block_hash(const Block& b) {
   Hash p = NULL_HASH;
   get_block_hash(b, p);

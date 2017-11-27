@@ -285,7 +285,77 @@ Returns last 30 blocks info by given block height.
 	}
 }
 ```
+## BLOCK_JSON
+
+Returns block details by given block hash.
+
+### block_json input:
+```
+{
+	"jsonrpc": "2.0",
+	"id": "test",
+	"method": "block_json",
+	"params": {
+		"hash": "eec31658c8fea93ee4e6ff8f7df224c841988e32ea8b0ab066f8a23c66ecb427"
+	}
+}
+```
+### block_json output:
+```
+{
+	"id": "test",
+	"jsonrpc": "2.0",
+	"result": {
+		"block": {
+			"alreadyGeneratedCoins": "101953400000000",
+			"alreadyGeneratedTransactions": 38118,
+			"baseReward": 10000000000000,
+			"blockSize": 16942,
+			"depth": 21,
+			"difficulty": 1214521,
+			"effectiveSizeMedian": 140701365871406,
+			"hash": "eec31658c8fea93ee4e6ff8f7df224c841988e32ea8b0ab066f8a23c66ecb427",
+			"height": 38040,
+			"major_version": 4,
+			"minor_version": 0,
+			"nonce": 1408307607,
+			"orphan_status": true,
+			"penalty": 0.0,
+			"prev_hash": "7ebd8f5f77b1ea3d555ef3dc09c2c6b5873402f5b57e91b591fa2487ddd5f621",
+			"reward": 100000001,
+			"sizeMedian": 81,
+			"timestamp": 1511786527,
+			"totalFeeAmount": 1,
+			"transactions": [{
+				"amount_out": 100000001,
+				"fee": 0,
+				"hash": "756624eb27c53e373e5360f8d4b1c43b5eb4f01fa5b675d8b55fa7a5c5938279",
+				"size": 115
+			},
+			{
+				"amount_out": 10009099899,
+				"fee": 1,
+				"hash": "8ce7157a2fbbf6e4a80d61fe7140860871f62705e36608420b487c8b9ef183e1",
+				"size": 16676
+			}],
+			"transactionsCumulativeSize": 16791
+		},
+		"status": "OK"
+	}
+}
+*****
+{
+	"error": {
+		"code": -5,
+		"message": "Internal error: can't get block by hash. Hash = 8ce7157a2fbbf6e4a80d61fe7140860871f62705e36608420b487c8b9ef183e1."
+	},
+	"id": "test",
+	"jsonrpc": "2.0"
+}
+```
+
 ## Declaration
+
 ```
     static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
       { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },

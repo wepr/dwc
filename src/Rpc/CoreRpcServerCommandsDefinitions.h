@@ -531,6 +531,26 @@ struct COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT {
   typedef BLOCK_HEADER_RESPONSE response;
 };
 //////////////////////////////////////////////////////////////
+struct COMMAND_RPC_GET_BLOCK_DETAILS {
+  struct request {
+    std::string hash;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(hash)
+    }
+  };
+
+  struct response {
+    block_details_response block;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(block)
+      KV_MEMBER(status)
+    }
+  };
+};
+//////////////////////////////////////////////////////////////
 struct COMMAND_RPC_GET_BLOCKS_LIST {
 	struct request {
 		uint64_t height;

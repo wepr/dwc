@@ -73,7 +73,8 @@ private:
 	bool on_block_json(const COMMAND_RPC_GET_BLOCK_DETAILS::request& req, COMMAND_RPC_GET_BLOCK_DETAILS::response& res);
 	bool on_transaction_json(const COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res);
 	bool getMixin(const Transaction& transaction, uint64_t& mixin);
-	
+	bool on_transactions_pool_json(const COMMAND_RPC_GET_POOL::request& req, COMMAND_RPC_GET_POOL::response& res);
+
 //$$$$
 
   void fill_block_header_response(const Block& blk, bool orphan_status, uint64_t height, const Crypto::Hash& hash, block_header_response& responce);

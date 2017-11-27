@@ -24,7 +24,23 @@ bool toBinaryArray(const BinaryArray& object, BinaryArray& binaryArray) {
 void getBinaryArrayHash(const BinaryArray& binaryArray, Crypto::Hash& hash) {
   cn_fast_hash(binaryArray.data(), binaryArray.size(), hash);
 }
+///////////////////////////////////////////////////////////////////////////////
+uint64_t getInputAmount(const Transaction& transaction) {
+	
+	uint64_t amount = 0;
+	
+	for (auto& input : transaction.inputs) {
+		if (input.type() == typeid(KeyInput)) {
+			amount += boost::get<KeyInput>(input).amount;
+		} 
+		else if (input.type() == typeid(MultisignatureInput)) {
+			amount += boost::get<MultisignatureInput>(input).amount;
+		}
+	}
 
+	return amount;
+}
+///////////////////////////////////////////////////////////////////////////////
 Crypto::Hash getBinaryArrayHash(const BinaryArray& binaryArray) {
   Crypto::Hash hash;
   getBinaryArrayHash(binaryArray, hash);

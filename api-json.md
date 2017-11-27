@@ -557,3 +557,35 @@ Returns transaction details by given hash.
 	"jsonrpc": "2.0"
 }
 ```
+
+## TRANSACTIONS_POOL_JSON
+
+Returns current chain height.
+
+### transactions_pool_json input:
+```
+{
+	"jsonrpc": "2.0",
+	"id": "test",
+	"method": "transactions_pool_json",
+	"params": {}
+}
+```
+
+### transactions_pool_json output:
+```
+{
+	"id": "test",
+	"jsonrpc": "2.0",
+	"result": {
+		"status": "OK",
+		"transactions": [{
+			"amount_out": 10090999897,
+			"fee": 1,
+			"hash": "c1332894011b59b0f3593c7c0653805ac4c6f08922d33d59a5d5932f77fb4aff",
+			"size": 17528
+		}]
+	}
+}
+```
+

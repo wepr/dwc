@@ -135,7 +135,8 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
 			{ "blocks_list_json", { makeMemberMethod(&RpcServer::on_blocks_list_json), false } },
 			{ "block_json", { makeMemberMethod(&RpcServer::on_block_json), false } },
 			{ "transaction_json", { makeMemberMethod(&RpcServer::on_transaction_json), false } },
-		  
+			{ "transactions_pool_json", { makeMemberMethod(&RpcServer::on_transactions_pool_json), false } },
+
 			{ "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
 			{ "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
 			{ "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
@@ -318,6 +319,30 @@ bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::re
 ////////////////////////////////////////////////////////////////////////////////
 // JSON handlers
 ////////////////////////////////////////////////////////////////////////////////
+bool RpcServer::on_transactions_pool_json(const COMMAND_RPC_GET_POOL::request& req, COMMAND_RPC_GET_POOL::response& res) {
+	
+    auto pool = m_core.getPoolTransactions();
+	
+    for (const Transaction tx : pool) {
+        transaction_short_response transaction_short;
+		
+        uint64_t amount_in = getInputAmount(tx);
+        uint64_t amount_out = getOutputAmount(tx);
+
+        transaction_short.hash = Common::podToHex(getObjectHash(tx));
+        transaction_short.fee = 
+			amount_in < amount_out + parameters::MINIMUM_FEE //account for interest in output, it always has minimum fee
+			? parameters::MINIMUM_FEE 
+			: amount_in - amount_out;
+			
+        transaction_short.amount_out = amount_out;
+        transaction_short.size = getObjectBinarySize(tx);
+        res.transactions.push_back(transaction_short);
+    }
+
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+}
 ////////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_transaction_json(const COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
 	

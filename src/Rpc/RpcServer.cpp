@@ -136,6 +136,7 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
 			{ "block_json", { makeMemberMethod(&RpcServer::on_block_json), false } },
 			{ "transaction_json", { makeMemberMethod(&RpcServer::on_transaction_json), false } },
 			{ "transactions_pool_json", { makeMemberMethod(&RpcServer::on_transactions_pool_json), false } },
+			{ "get_blockchain_settings", { makeMemberMethod(&RpcServer::on_get_blockchain_settings), true } },
 
 			{ "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
 			{ "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
@@ -318,6 +319,43 @@ bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::re
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 // JSON handlers
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+bool RpcServer::on_get_blockchain_settings(const COMMAND_RPC_GET_BLOCKCHAIN_SETTINGS::request& req, COMMAND_RPC_GET_BLOCKCHAIN_SETTINGS::response& res) {
+  res.base_coin.name = "lanthaneum";
+  res.base_coin.git = "https://github.com/monselice/ZZL.git";
+
+  // Hardcoded plugins, refactor this
+  res.extensions.push_back("core/bytecoin.json");
+  res.extensions.push_back("bug-fixes.json");
+  res.extensions.push_back("print-genesis-tx.json");
+
+  res.core.DIFFICULTY_TARGET = m_core.getCurrency().difficultyTarget();
+  res.core.CRYPTONOTE_DISPLAY_DECIMAL_POINT = m_core.getCurrency().numberOfDecimalPlaces();
+  res.core.MONEY_SUPPLY = std::to_string(m_core.getCurrency().moneySupply());
+  res.core.DEFAULT_DUST_THRESHOLD = m_core.getCurrency().defaultDustThreshold();
+  res.core.MINIMUM_FEE = m_core.getCurrency().minimumFee();
+  res.core.CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW = m_core.getCurrency().minedMoneyUnlockWindow();
+  res.core.CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE = m_core.getCurrency().blockGrantedFullRewardZone();
+  res.core.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = m_core.getCurrency().publicAddressBase58Prefix();
+  res.core.MAX_BLOCK_SIZE_INITIAL = m_core.getCurrency().maxBlockSizeInitial();
+  res.core.UPGRADE_HEIGHT_V2 = m_core.getCurrency().upgradeHeight(2);
+  res.core.UPGRADE_HEIGHT_V3 = m_core.getCurrency().upgradeHeight(3);
+  res.core.DIFFICULTY_WINDOW = m_core.getCurrency().difficultyWindow();
+  res.core.DIFFICULTY_CUT = m_core.getCurrency().difficultyCut();
+  res.core.DIFFICULTY_LAG = m_core.getCurrency().difficultyLag();
+
+  res.core.P2P_DEFAULT_PORT = m_p2p.get_this_peer_port();
+  res.core.RPC_DEFAULT_PORT = m_p2p.get_this_peer_port() + 1;
+
+   std::map<uint32_t, Crypto::Hash> cp;
+
+  res.core.GENESIS_COINBASE_TX_HEX = Common::toHex(CryptoNote::toBinaryArray(m_core.getCurrency().genesisBlock().baseTransaction));
+
+  res.status = CORE_RPC_STATUS_OK;
+  return true;
+}
 ////////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_transactions_pool_json(const COMMAND_RPC_GET_POOL::request& req, COMMAND_RPC_GET_POOL::response& res) {
 	

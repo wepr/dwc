@@ -1039,4 +1039,7 @@ bool core::removeMessageQueue(MessageQueue<BlockchainMessage>& messageQueue) {
   return m_blockchain.removeMessageQueue(messageQueue);
 }
 
+const Currency& core::getCurrency() const {
+  return m_currency;
+}
 }

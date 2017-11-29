@@ -112,7 +112,9 @@ namespace CryptoNote {
 
      void set_cryptonote_protocol(i_cryptonote_protocol* pprotocol);
      void set_checkpoints(Checkpoints&& chk_pts);
-
+//$$$$
+	const Currency& getCurrency() const;
+//$$$$
      std::vector<Transaction> getPoolTransactions() override;
      size_t get_pool_transactions_count();
      size_t get_blockchain_total_transactions();

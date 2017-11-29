@@ -323,13 +323,8 @@ bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::re
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_get_blockchain_settings(const COMMAND_RPC_GET_BLOCKCHAIN_SETTINGS::request& req, COMMAND_RPC_GET_BLOCKCHAIN_SETTINGS::response& res) {
-  res.base_coin.name = "lanthaneum";
-  res.base_coin.git = "https://github.com/monselice/ZZL.git";
-
-  // Hardcoded plugins, refactor this
-  res.extensions.push_back("core/bytecoin.json");
-  res.extensions.push_back("bug-fixes.json");
-  res.extensions.push_back("print-genesis-tx.json");
+  res.base_coin.name = "soldo";
+  res.base_coin.git = "https://github.com/monselice/sld.git";
 
   res.core.DIFFICULTY_TARGET = m_core.getCurrency().difficultyTarget();
   res.core.CRYPTONOTE_DISPLAY_DECIMAL_POINT = m_core.getCurrency().numberOfDecimalPlaces();

@@ -591,7 +591,7 @@ bool processServerAliasResponse(const std::string& response, std::string& addres
       return false;
     }
 
-    auto xdnIt = rootIt->second[0].getObject().find("zzl");
+    auto xdnIt = rootIt->second[0].getObject().find("sld");
     if (xdnIt == rootIt->second[0].getObject().end()) {
       return false;
     }
@@ -840,7 +840,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 			return false;
 		}
 
-    std::cout << "Specify wallet file name (e.g., zzl-first.wallet).\n";
+    std::cout << "Specify wallet file name (e.g., sld-first.wallet).\n";
     std::string userInput;
     do {
       std::cout << "Wallet file name: ";

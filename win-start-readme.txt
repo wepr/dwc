@@ -4,9 +4,9 @@ this archive contains several apps and batch files.
 
 0 - Useful files
 
-zzld.exe - coin's daemon
-zzlw.exe - wallet app
-zzlm.exe - CPU solo miner app
+sldd.exe - coin's daemon
+sldw.exe - wallet app
+sldm.exe - CPU solo miner app
 
 new-wallet.bat - batch file to generate new wallet
 daemon.bat - batch file to start coin's daemon
@@ -24,7 +24,7 @@ WARINING - backup *.wallet file ASAP to another pc, remote location of flash dri
 
 2 - Second - edit miner batch file
 
-Open *.wallet.address file in notepad and copy your ZZL address to clipboard [Ctrl+C]
+Open *.wallet.address file in notepad and copy your SLD address to clipboard [Ctrl+C]
 Edit miner.bat file, paste just copied address instead of default.
 Change number of mining threads if you need.
 Save.
@@ -38,7 +38,7 @@ Save.
 4 - Start daemon.
 
 Clear cache if you used test version of daemon.
-To do this, press [Win+R] key, type %APPDATA%, and delete zzl folder if you have one.
+To do this, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
 
 Wait for 31-NOV-2017 12:00 GMT.
 Run daemon.bat.
@@ -52,5 +52,5 @@ If still failed - ask for assistance at official Ryver forum - https://zzl.ryver
 If your daemon found any seed and became fully synced - start mining.
 Start miner.bat.
 Another way - just type:
-	start_mining your_zzl_wallet_address threads_count
-inside daemon's app window, where your_zzl_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.
+	start_mining your_sld_wallet_address threads_count
+inside daemon's app window, where your_sld_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.

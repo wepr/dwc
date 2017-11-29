@@ -1,4 +1,4 @@
-# Lanthaneum Daemon's JSON RPC API
+# Soldo Daemon's JSON RPC API
 
 ## GETBLOCKCOUNT
 

@@ -2,7 +2,7 @@
 // Copyright (c) 2014-2017 XDN-project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-// ZZL and ZZP proposal [--- ZZL ---]
+// SLD and ZZP proposal [--- SLD ---]
 
 #pragma once
 
@@ -15,8 +15,8 @@ namespace parameters {
 const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
-const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 117;//Prefix of the wallet address: start with 135=ZZP, 117=ZZL
-const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 18;// 4=ZZP, 18=ZZL
+const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 117;//Prefix of the wallet address: start with 135=ZZP, 117=SLD
+const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 18;// 4=ZZP, 18=SLD
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 30;
@@ -27,21 +27,21 @@ const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1048576; //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 32758;  //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
-const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=ZZL, 4=ZZP
+const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=SLD, 4=ZZP
 
-const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=ZZL, 100000000=ZZP
+const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=SLD, 100000000=ZZP
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1);// Transactions with less than this fee wouldn’t be accepted by daemons
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, ZZL=2
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, SLD=2
 
-const uint64_t REAL_COINS_LIMITED_Z                          = UINT64_C(10000000);//Total amount of coins mineable with full reward: 10000000=ZZL,10000000000=ZZP
+const uint64_t REAL_COINS_LIMITED_Z                          = UINT64_C(10000000);//Total amount of coins mineable with full reward: 10000000=SLD,10000000000=ZZP
 const uint64_t MONEY_SUPPLY_MINEABLE_Z                       = REAL_COINS_LIMITED_Z*COIN;//Total amount of atomic units mineable with full reward
-const size_t   RUSH_BLOCKS_Z                                 = 1000;//Premium rewarded blocks count: ZZP=500, ZZL=1000
-const uint64_t RUSH_REWARD_Z                                 = (UINT64_C(100)*COIN);//Reward for a premium block: ZZP=200000, ZZL=100
-const uint64_t COMMON_REWARD_Z                               = (UINT64_C(1)*COIN);//Reward for an ordinary block: ZZP=1000, ZZL=1
-const uint64_t GENESIS_BLOCK_REWARD_Z                        = (UINT64_C(50000)*COIN);//Premine amount, in atomic units: ZZL=50000, ZZP=10.000.000
-const size_t   RUSH_REWARD_LOCK_Z                            = 750000;//Premium rewarded blocks lock time: ZZP=20000, ZZL=750000
+const size_t   RUSH_BLOCKS_Z                                 = 1000;//Premium rewarded blocks count: ZZP=500, SLD=1000
+const uint64_t RUSH_REWARD_Z                                 = (UINT64_C(100)*COIN);//Reward for a premium block: ZZP=200000, SLD=100
+const uint64_t COMMON_REWARD_Z                               = (UINT64_C(1)*COIN);//Reward for an ordinary block: ZZP=1000, SLD=1
+const uint64_t GENESIS_BLOCK_REWARD_Z                        = (UINT64_C(50000)*COIN);//Premine amount, in atomic units: SLD=50000, ZZP=10.000.000
+const size_t   RUSH_REWARD_LOCK_Z                            = 750000;//Premium rewarded blocks lock time: ZZP=20000, SLD=750000
 
-const uint64_t DIFFICULTY_TARGET                             = 20;//Difficulty target is an ideal time period between blocks, in seconds. 20=ZZL, 720=ZZP
+const uint64_t DIFFICULTY_TARGET                             = 20;//Difficulty target is an ideal time period between blocks, in seconds. 20=SLD, 720=ZZP
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY/12; // blocks
 const size_t   DIFFICULTY_CUT                                = 60;//Timestamps to cut after sorting
@@ -49,9 +49,9 @@ const size_t   DIFFICULTY_LAG                                = 20;//Lag of calcu
 
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
 
-const size_t   DIFFICULTY_FNC_VER                            = 0;//0=ZZL, 2=ZZP
-const uint32_t DIFFICULTY_ZAWY_START_BLOCK                   = 24000;//24000=ZZL, 1=ZZP
-const size_t   DIFFICULTY_ZAWY_WINDOW                        = 30;//30=ZZL, 12=ZZP
+const size_t   DIFFICULTY_FNC_VER                            = 0;//0=SLD, 2=ZZP
+const uint32_t DIFFICULTY_ZAWY_START_BLOCK                   = 24000;//24000=SLD, 1=ZZP
+const size_t   DIFFICULTY_ZAWY_WINDOW                        = 30;//30=SLD, 12=ZZP
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 11000;
@@ -100,8 +100,8 @@ const uint64_t START_BLOCK_REWARD                            = (UINT64_C(320000)
 const uint64_t MIN_BLOCK_REWARD                              = (UINT64_C(150) * parameters::COIN);
 const uint64_t REWARD_HALVING_INTERVAL                       = (UINT64_C(11000));
 
-const char     CRYPTONOTE_TICKER[]                           = "zzl";
-const char     CRYPTONOTE_NAME[]                             = "Lanthaneum";
+const char     CRYPTONOTE_TICKER[]                           = "sld";
+const char     CRYPTONOTE_NAME[]                             = "Soldo";
 
 const char GENESIS_COINBASE_TX_HEX[] = "010101ff00002101f0c11cb027ca12cb2b52d82bbe1851432ca1aabc5362375cddfb1c9606a8d135";
 
@@ -125,8 +125,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        =  10000;  //by def
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  128;    //by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         =  1000;
 
-const int      P2P_DEFAULT_PORT                              = 33711;//ZZP=33721, ZZL=33711
-const int      RPC_DEFAULT_PORT                              = 33712;//ZZP=33722, ZZL=33712
+const int      P2P_DEFAULT_PORT                              = 33711;//ZZP=33721, SLD=33711
+const int      RPC_DEFAULT_PORT                              = 33712;//ZZP=33722, SLD=33712
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  512;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  2048;
@@ -172,6 +172,7 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
 	{ 15000, "d845500caa5b367b7cbeb5ab4ad997ed65749db9c04a6ada90132ee363d84268" },
 	{ 20000, "338b94eea1c836545b9ac52635bf56e793c4d7087327b8344f801d19d244efdc" },
 	{ 24000, "e191d6292e928410481ed6209c4d492e0f0eff82723f9a18031f85d3955dffc9" },
+	{ 45000, "4789c368a9c7b2d439fbd43eedbffc73c4e40775bd63a37030c5af46e698112d" },
 
 };
 

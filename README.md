@@ -1,17 +1,17 @@
-# Lanthaneum
+# Soldo
 
-Lanthaneum is a new experimental coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
+Soldo is a new experimental coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
 
-Lanthaneum was designed as a light alternative to current Cryptonote-based coins.
+Soldo was designed as a light alternative to current Cryptonote-based coins.
 It should be mineable even with low-end PCs, including phones and tablets.
 Blockchain size and network load plan to stay at reasonable level as well.
-Transfer's tiny flat fee is another key point of Lanthaneum for everyday use.
+Transfer's tiny flat fee is another key point of Soldo for everyday use.
 
 ## Windows Users
 
-### Download pre-compiled Lanthaneum apps
+### Download pre-compiled Soldo apps
 
-Latest Lanthaneum releases could be found at https://github.com/monselice/ZZL/releases
+Latest Soldo releases could be found at https://github.com/monselice/sld/releases
 
 Download ZIP-archive and unpack it to a folder (c:\Bin\Bit)
 
@@ -19,11 +19,11 @@ Download ZIP-archive and unpack it to a folder (c:\Bin\Bit)
 
 this archive contains several apps and batch files.
 
-zzld.exe - coin's daemon
+sldd.exe - coin's daemon
 
-zzlw.exe - wallet app
+sldw.exe - wallet app
 
-zzlm.exe - CPU solo miner app
+sldm.exe - CPU solo miner app
 
 new-wallet.bat - batch file to generate new wallet
 
@@ -48,7 +48,7 @@ WARINING - backup *.wallet file ASAP to another pc, remote location of flash dri
 
 ### Edit a miner batch file
 
-Open *.wallet.address file in notepad and copy your ZZL address to clipboard [Ctrl+C]
+Open *.wallet.address file in notepad and copy your SLD address to clipboard [Ctrl+C]
 
 Edit miner.bat file, paste just copied address instead of default.
 
@@ -68,7 +68,7 @@ Save.
 
 !!! Clear cache if you used test version of daemon.
 
-To do this, press [Win+R] key, type %APPDATA%, and delete zzl folder if you have one.
+To do this, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
 
 Run daemon.bat.
 
@@ -87,13 +87,13 @@ Start miner.bat.
 Another way - just type:
 
 ```
-start_mining your_zzl_wallet_address threads_count
+start_mining your_sld_wallet_address threads_count
 ```
-inside daemon's app window, where your_zzl_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.
+inside daemon's app window, where your_sld_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.
 
 
 
-### Building Lanthaneum
+### Building Soldo
 
 You have to install follow software:
 
@@ -119,26 +119,26 @@ https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.zip
 
 Download source code from:
 
-https://github.com/monselice/ZZL
+https://github.com/monselice/sld
 or clone from Github
-git clone https://github.com/monselice/ZZL.git zzl
+git clone https://github.com/monselice/sld.git sld
 
-To build Lanthaneum apps, change to a directory where this file is located (x:\git\), and run commands:
+To build Soldo apps, change to a directory where this file is located (x:\git\), and run commands:
 
 ```
 x:
-cd x:\git\zzl\
+cd x:\git\sld\
 mkdir build
 cd build
 
 cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT=X:/boost_1_65_1 -DBOOST_LIBRARYDIR=X:/boost_1_65_1/lib64-msvc-14.0 ..
-MSBuild Lanthaneum.sln /p:Configuration=release /m
+MSBuild Soldo.sln /p:Configuration=release /m
 ```
-The resulting executables can be found in X:\Git\ZZL\build\src\Release
+The resulting executables can be found in X:\Git\sld\build\src\Release
 
 ## Linux Users
 
-### Building Lanthaneum
+### Building Soldo
 
 Dependencies: GCC 4.7.3 or later, CMake 2.8.6 or later, and Boost 1.56 or later.
 
@@ -161,8 +161,8 @@ sudo apt install build-essential
 sudo apt install libboost-dev libboost-all-dev 
 
 cd ~
-git clone https://github.com/monselice/ZZL.git zzl
-cd zzl
+git clone https://github.com/monselice/sld.git sld
+cd sld
 mkdir build
 cd build
 cmake ..
@@ -170,4 +170,4 @@ cd ..
 make
 ```
 
-The resulting executables can be found in `zzl/build/release/src`.
+The resulting executables can be found in `sld/build/release/src`.

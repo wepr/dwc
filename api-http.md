@@ -1,4 +1,4 @@
-# Lanthaneum Daemon's HTTP API
+# Soldo Daemon's HTTP API
 
 ## GETINFO
 

@@ -84,13 +84,13 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
 }
 
 void renameDataDir() {
-  std::string LanthaneumDir = Tools::getDefaultDataDirectory();
-  boost::filesystem::path LanthaneumDirPath(LanthaneumDir);
-  if (boost::filesystem::exists(LanthaneumDirPath)) {
+  std::string SoldoDir = Tools::getDefaultDataDirectory();
+  boost::filesystem::path SoldoDirPath(SoldoDir);
+  if (boost::filesystem::exists(SoldoDirPath)) {
     return;
   }
 
-  std::string dataDirPrefix = LanthaneumDir.substr(0, LanthaneumDir.size() + 1 - sizeof(CRYPTONOTE_TICKER));
+  std::string dataDirPrefix = SoldoDir.substr(0, SoldoDir.size() + 1 - sizeof(CRYPTONOTE_TICKER));
 }
 
 int main(int argc, char* argv[])

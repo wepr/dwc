@@ -1,6 +1,17 @@
+Carbon version:
+ Build #37
+  - first release rebranded to Soldo;
+  - daemon: print_stat command renamed to stat
+  - daemon: print_pl command renamed to peers
+  - daemon: print_cn command renamed to connects
+  - daemon: print_block command renamed to block
+  - daemon: print_bc command renamed to chain
+  - daemon: print_tx command renamed to tx
+  - daemon: print_pool command renamed to pool
+  - daemon: print_pool_sh command renamed to pool_sh
+  - daemon: set_log command renamed to log
+
 Boron version:
- Build #36
-  - daemon: TRANSACTIONS_POOL_JSON JSON RPC method added;
  Build #35
   - daemon: TRANSACTIONS_POOL_JSON JSON RPC method added;
  Build #34

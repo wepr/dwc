@@ -1,6 +1,6 @@
 //#############################################################################
 //zrainbow.h
-//(c) Zhe - zhe@@@lanthaneum.com
+//(c) Zhe - zhe@@@soldo.in
 //USAGE >>
 //
 //std::cout 

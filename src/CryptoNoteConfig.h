@@ -29,7 +29,7 @@ const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 32758;  //size of
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=SLD, 4=ZZP
 
-const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=SLD, 100000000=ZZP
+const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=ZZP, 100000000=SLD
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1);// Transactions with less than this fee wouldn’t be accepted by daemons
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, SLD=2
 
@@ -144,13 +144,12 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;          //
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "ab99e468743e62c86e6d07a0db4f26db5fa6c46dc2ee899b459b3a205385d460";
 
 const std::initializer_list<const char*> SEED_NODES = {
-	"s1.lanthaneum.com:33711",  
-	"s2.lanthaneum.com:33711",  
-	"s3.lanthaneum.com:33711",  
-	"s4.lanthaneum.com:33711",  
-	"s5.lanthaneum.com:33711",  
-	"s6.lanthaneum.com:33711",  
-	
+	"s1.soldo.in:33711",  
+	"s2.soldo.in:33711",  
+	"s3.soldo.in:33711",  
+	"s4.soldo.in:33711",  
+	"s5.soldo.in:33711",  
+	"s6.soldo.in:33711",  
 };
 
 struct CheckpointData {
@@ -165,14 +164,22 @@ __attribute__((unused))
 // You may add here other checkpoints using the following format:
 // {<block height>, "<block hash>"},
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
-	{ 500, "6484b98d348a8bb912ccac1f57bf489e79b2e7f182fbcd85f9e6fb6cb9b75020" },
-	{ 1000, "e71a72d72446b61b70fb11bc4b9f5a9b4acbea772522876181aaab6cfeb9f8b3" },
-	{ 5000, "8c25c2783910ede539fa575edf7dbd8aae87e851081a163f51f4af381a3dc488" },
-	{ 10000, "9f5a62a04e0dea35f922c9c46240bc26d766c3cf9d45df62cc1dcb3a2b296042" },
-	{ 15000, "d845500caa5b367b7cbeb5ab4ad997ed65749db9c04a6ada90132ee363d84268" },
-	{ 20000, "338b94eea1c836545b9ac52635bf56e793c4d7087327b8344f801d19d244efdc" },
-	{ 24000, "e191d6292e928410481ed6209c4d492e0f0eff82723f9a18031f85d3955dffc9" },
-	{ 45000, "4789c368a9c7b2d439fbd43eedbffc73c4e40775bd63a37030c5af46e698112d" },
+	{ 10,       "9d9c8d35abe3df6d6b568ceaec0484ab4de90b117f449e3f20268d4c5157cd3c" },
+	{ 500,      "6484b98d348a8bb912ccac1f57bf489e79b2e7f182fbcd85f9e6fb6cb9b75020" },
+	{ 1000,     "e71a72d72446b61b70fb11bc4b9f5a9b4acbea772522876181aaab6cfeb9f8b3" },
+	{ 5000,     "8c25c2783910ede539fa575edf7dbd8aae87e851081a163f51f4af381a3dc488" },
+	{ 10000,    "9f5a62a04e0dea35f922c9c46240bc26d766c3cf9d45df62cc1dcb3a2b296042" },
+	{ 20000,    "338b94eea1c836545b9ac52635bf56e793c4d7087327b8344f801d19d244efdc" },
+	{ 24000,    "e191d6292e928410481ed6209c4d492e0f0eff82723f9a18031f85d3955dffc9" },
+	{ 50000,    "d77bbc550a5e08502e8bd58e6cd5f0ec24ab00179135cd4eb99a9d7c74d8cc4e" },
+	{ 75000,    "75a833470bff666bc414a5803ecd9bf1a7c19b75049ed6c4d5903690210f66fd" },
+	{ 100000,   "2a9f74669832fe2e2a14129d4df423d8d2fa1547a0a24358a51fc71b810ff641" },
+	{ 125000,   "776a8b2b40cf5297375b5813fde5480c6ae8525db35fad73b7b523d6d67771c8" },
+	{ 150000,   "b8d953e0b5d81f8a2b0db3d3881107ec676d72e0368c88c25085a913830a6656" },
+	{ 175000,   "6c8b5543f94a9fbc3914fdfd0a58277d8ff1879b1f173db6890f99425fecc3aa" },
+	{ 200000,   "b529eb8efbd46d978d7ce48f18ab07bb1bf6d0e4ddb85adf9808aed781fc045b" },
+	{ 225000,   "6ceb7e3443978adb2356608417bb3dd61184246979d42ad8131ab274b2138a18" },
+	{ 250000,   "9269ae2275b997f5d5d34e14a40c89471cf0f5b127693cdb0ea9b4a58420d966" },
 
 };
 

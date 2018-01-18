@@ -36,9 +36,9 @@ DaemonCommandsHandler::DaemonCommandsHandler(CryptoNote::core& core, CryptoNote:
   m_consoleHandler.setHandler("chain", boost::bind(&DaemonCommandsHandler::print_bc, this, _1), "Print blockchain info in a given blocks range, print_bc <begin_height> [<end_height>]");
   //m_consoleHandler.setHandler("print_bci", boost::bind(&DaemonCommandsHandler::print_bci, this, _1));
   //m_consoleHandler.setHandler("print_bc_outs", boost::bind(&DaemonCommandsHandler::print_bc_outs, this, _1));
-  m_consoleHandler.setHandler("block", boost::bind(&DaemonCommandsHandler::print_block, this, _1), "Print block, print_block <block_hash> | <block_height>");
-  m_consoleHandler.setHandler("stat", boost::bind(&DaemonCommandsHandler::print_stat, this, _1), "Print statistics, print_stat <nothing=last> | <block_hash> | <block_height>");
-  m_consoleHandler.setHandler("tx", boost::bind(&DaemonCommandsHandler::print_tx, this, _1), "Print transaction, print_tx <transaction_hash>");
+  m_consoleHandler.setHandler("block", boost::bind(&DaemonCommandsHandler::print_block, this, _1), "Print block, block <block_hash> | <block_height>");
+  m_consoleHandler.setHandler("stat", boost::bind(&DaemonCommandsHandler::print_stat, this, _1), "Print statistics, stat <nothing=last> | <block_hash> | <block_height>");
+  m_consoleHandler.setHandler("tx", boost::bind(&DaemonCommandsHandler::print_tx, this, _1), "Print transaction, tx <transaction_hash>");
   m_consoleHandler.setHandler("start_mining", boost::bind(&DaemonCommandsHandler::start_mining, this, _1), "Start mining for specified address, start_mining <addr> [threads=1]");
   m_consoleHandler.setHandler("stop_mining", boost::bind(&DaemonCommandsHandler::stop_mining, this, _1), "Stop mining");
   m_consoleHandler.setHandler("pool", boost::bind(&DaemonCommandsHandler::print_pool, this, _1), "Print transaction pool (long format)");

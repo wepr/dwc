@@ -567,17 +567,29 @@ bool RpcServer::on_block_json(const COMMAND_RPC_GET_BLOCK_DETAILS::request& req,
 
 	block_header_response block_header;
 	res.block.height = boost::get<BaseInput>(blk.baseTransaction.inputs.front()).blockIndex;
-	fill_block_header_response(blk, false, res.block.height, hash, block_header);
+
+//$$$$  
+  Crypto::Hash tmp_hash = m_core.getBlockIdByHeight(res.block.height);
+  bool is_orphaned = hash != tmp_hash;
+//$$$$
+  
+	fill_block_header_response(blk, is_orphaned, res.block.height, hash, block_header);
 
 	res.block.major_version = block_header.major_version;
 	res.block.minor_version = block_header.minor_version;
 	res.block.timestamp = block_header.timestamp;
 	res.block.prev_hash = block_header.prev_hash;
 	res.block.nonce = block_header.nonce;
-	res.block.hash = Common::podToHex(hash);
-	res.block.depth = m_core.get_current_blockchain_height() - res.block.height - 1;
-	m_core.getBlockDifficulty(static_cast<uint32_t>(res.block.height), res.block.difficulty);
+	res.block.orphan_status = block_header.orphan_status;
 
+	//res.block.hash = Common::podToHex(hash);
+	//res.block.depth = m_core.get_current_blockchain_height() - res.block.height - 1;
+	//m_core.getBlockDifficulty(static_cast<uint32_t>(res.block.height), res.block.difficulty);
+
+	res.block.hash =block_header.hash;
+	res.block.depth = block_header.depth;
+	res.block.height = block_header.height;
+	
 	res.block.reward = block_header.reward;
 
 	std::vector<size_t> blocksSizes;
@@ -626,7 +638,9 @@ bool RpcServer::on_block_json(const COMMAND_RPC_GET_BLOCK_DETAILS::request& req,
 	size_t blockGrantedFullRewardZone = penalizeFee ?
 		m_core.currency().blockGrantedFullRewardZone() :
 		res.block.effectiveSizeMedian = std::max(res.block.sizeMedian, blockGrantedFullRewardZone);
-
+//$$$$		
+	res.block.effectiveSizeMedian = m_core.currency().blockGrantedFullRewardZone();
+//$$$$	
 	if (!m_core.getBlockReward(res.block.sizeMedian, 0, prevBlockGeneratedCoins, 0, res.block.height, maxReward, emissionChange)) {
 		return false;
 	}
@@ -981,7 +995,7 @@ void RpcServer::fill_block_header_response(const Block& blk, bool orphan_status,
   m_core.getBlockDifficulty(static_cast<uint32_t>(height), responce.difficulty);
   responce.reward = get_block_reward(blk);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_get_last_block_header(const COMMAND_RPC_GET_LAST_BLOCK_HEADER::request& req, COMMAND_RPC_GET_LAST_BLOCK_HEADER::response& res) {
   uint32_t last_block_height;
   Hash last_block_hash;
@@ -992,20 +1006,26 @@ bool RpcServer::on_get_last_block_header(const COMMAND_RPC_GET_LAST_BLOCK_HEADER
   if (!m_core.getBlockByHash(last_block_hash, last_block)) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_INTERNAL_ERROR, "Internal error: can't get last block hash." };
   }
+
+//$$$$  
+  Crypto::Hash tmp_hash = m_core.getBlockIdByHeight(last_block_height);
+  bool is_orphaned = last_block_hash != tmp_hash;
+//$$$$ 
   
-  fill_block_header_response(last_block, false, last_block_height, last_block_hash, res.block_header);
+  fill_block_header_response(last_block, is_orphaned, last_block_height, last_block_hash, res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_get_block_header_by_hash(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::response& res) {
-  Hash block_hash;
+	
+	Crypto::Hash block_hash;
 
-  if (!parse_hash256(req.hash, block_hash)) {
-    throw JsonRpc::JsonRpcError{
-      CORE_RPC_ERROR_CODE_WRONG_PARAM,
-      "Failed to parse hex representation of block hash. Hex = " + req.hash + '.' };
-  }
+	if (!parse_hash256(req.hash, block_hash)) {
+		throw JsonRpc::JsonRpcError{
+			CORE_RPC_ERROR_CODE_WRONG_PARAM,
+			"Failed to parse hex representation of block hash. Hex = " + req.hash + '.' };
+	}
 
   Block blk;
   if (!m_core.getBlockByHash(block_hash, blk)) {
@@ -1021,11 +1041,17 @@ bool RpcServer::on_get_block_header_by_hash(const COMMAND_RPC_GET_BLOCK_HEADER_B
   }
 
   uint64_t block_height = boost::get<BaseInput>(blk.baseTransaction.inputs.front()).blockIndex;
-  fill_block_header_response(blk, false, block_height, block_hash, res.block_header);
+  
+//$$$$  
+  Crypto::Hash tmp_hash = m_core.getBlockIdByHeight(block_height);
+  bool is_orphaned = block_hash != tmp_hash;
+//$$$$
+  
+  fill_block_header_response(blk, is_orphaned, block_height, block_hash, res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
-
+///////////////////////////////////////////////////////////////////////////////
 bool RpcServer::on_get_block_header_by_height(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::response& res) {
   if (m_core.get_current_blockchain_height() <= req.height) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_TOO_BIG_HEIGHT,
@@ -1039,7 +1065,12 @@ bool RpcServer::on_get_block_header_by_height(const COMMAND_RPC_GET_BLOCK_HEADER
       "Internal error: can't get block by height. Height = " + std::to_string(req.height) + '.' };
   }
 
-  fill_block_header_response(blk, false, req.height, block_hash, res.block_header);
+//$$$$  
+  Crypto::Hash tmp_hash = m_core.getBlockIdByHeight(req.height);
+  bool is_orphaned = block_hash != tmp_hash;
+//$$$$
+  
+  fill_block_header_response(blk, is_orphaned, req.height, block_hash, res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }

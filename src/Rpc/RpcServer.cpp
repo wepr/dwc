@@ -588,7 +588,7 @@ bool RpcServer::on_block_json(const COMMAND_RPC_GET_BLOCK_DETAILS::request& req,
 
 	res.block.hash =block_header.hash;
 	res.block.depth = block_header.depth;
-	res.block.height = block_header.height;
+	res.block.difficulty = block_header.difficulty;
 	
 	res.block.reward = block_header.reward;
 

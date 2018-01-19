@@ -427,6 +427,8 @@ bool RpcServer::on_transaction_json(const COMMAND_RPC_GET_TRANSACTION_DETAILS::r
 			block_short.hash = Common::podToHex(blockHash);
 			block_short.cumul_size = blokBlobSize + tx_cumulative_block_size - minerTxBlobSize;
 			block_short.tx_count = blk.transactionHashes.size() + 1;
+			m_core.getBlockDifficulty(static_cast<uint32_t>(blockHeight), block_short.difficulty);
+
 			res.block = block_short;
 		}
 	}
@@ -696,7 +698,9 @@ bool RpcServer::on_block_json(const COMMAND_RPC_GET_BLOCK_DETAILS::request& req,
 
 		res.block.totalFeeAmount += transaction_short.fee;
 	}
-
+//$$$$
+	res.block.baseReward = res.block.reward - res.block.totalFeeAmount;
+//$$$$	
 	res.status = CORE_RPC_STATUS_OK;
 	return true;
 }

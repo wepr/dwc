@@ -2,7 +2,7 @@
 
 ## Basic settings
 
-First of all you have to set basic settings for paymets app launch.
+First of all you have to set basic settings for paymets application launch.
 
 You should create config file like below:
 
@@ -19,7 +19,7 @@ hide-my-port=1
 local=1
 ```
 
-### Full list of settings and app params is below:
+### Full list of settings and application params is below:
 ```
 Common Options:
   -c [ --config ] arg                   configuration file
@@ -60,48 +60,48 @@ Local Node Options:
 
 ## Generating Container
 
-Next you need to generate container to hold your coins.
+Next you need to generate container to hold your wallets.
 Run command like below to get your container.
 
 ```
 sldp -c C:\Bin\BIT\SLD\sld-galapagos.ini -w C:\Bin\BIT\SLD\sld-aaa.container -p My-Long-And-Boring-Password-ABCDE -g
 ```
 
-Your container will be created and app will terminate
+Your container will be created and application will terminate.
 
-## Start Payment app
+## Start Payment application
 
-Remove last param *-g* from previous example and start Payment App again.
-Payment app will start and ready to service your requests.
+Remove last param *-g* from previous example and start Payment Application again.
+Payment application will start and ready to service your requests.
 
-## Working with Payment app
+## Working with Payment application
 
 You have to HTTP POST requests in JSON format using http://127.0.0.1:33717/json_rpc endpoint.
 
 Change port number to value you set at _bind-port_ param in config file.
 
-If you use Payment app at remote node you have to change IP-address as well.
+If you use Payment application at remote node you have to change IP-address as well.
 
 ### List of available commands
 
-reset
-createAddress
-deleteAddress
-getSpendKeys
-getBalance
-getBlockHashes
-getTransactionHashes
-getTransactions
-getUnconfirmedTransactionHashes
-getTransaction
-sendTransaction
-createDelayedTransaction
-getDelayedTransactionHashes
-deleteDelayedTransaction
-sendDelayedTransaction
-getViewKey
-getStatus
-getAddresses
+	reset
+	createAddress
+	deleteAddress
+	getSpendKeys
+	getBalance
+	getBlockHashes
+	getTransactionHashes
+	getTransactions
+	getUnconfirmedTransactionHashes
+	getTransaction
+	sendTransaction
+	createDelayedTransaction
+	getDelayedTransactionHashes
+	deleteDelayedTransaction
+	sendDelayedTransaction
+	getViewKey
+	getStatus
+	getAddresses
 
 ### Checking status
 
@@ -159,7 +159,7 @@ Please note: If address is not specified, returns a cumulative balance of all co
 ```
 ### Get view key
 
-Backup view key before run app in production.
+Backup view key before run application in production.
 
 #### Request
 ```
@@ -209,7 +209,7 @@ Your new container should have at least one default wallet.
 ```
 ### Get spend key
 
-Backup spend key before run app in production as well.
+Backup spend key before run application in production as well.
 
 #### Request
 ```
@@ -429,20 +429,20 @@ Note: if both above mentioned parameters are set, getTransactions() method retur
 
 Array that contains:
 
-block_hash - string - hash of the block which contains a transaction
-transactions - array - contains
-	transactionHash - string - hash of the transaction
-	blockIndex - uint32 - number of the block that contains a transaction
-	timestamp - uint64 - timestamp of the transaction
-	isBase - boolean - shows if the transaction is a coinbase transaction or not
-	unlockTime - uint64 - height of the block when transaction is going to be available for spending
-	amount - int64 - amount of the transaction
-	fee - uint64- transaction fee
-	extra - string
-	paymentId - string - payment_id of the transaction (optional)
-	transfers - array - contains
-		address - string
-		amount - int64 
+	block_hash - string - hash of the block which contains a transaction
+	transactions - array - contains
+		transactionHash - string - hash of the transaction
+		blockIndex - uint32 - number of the block that contains a transaction
+		timestamp - uint64 - timestamp of the transaction
+		isBase - boolean - shows if the transaction is a coinbase transaction or not
+		unlockTime - uint64 - height of the block when transaction is going to be available for spending
+		amount - int64 - amount of the transaction
+		fee - uint64- transaction fee
+		extra - string
+		paymentId - string - payment_id of the transaction (optional)
+		transfers - array - contains
+			address - string
+			amount - int64 
 
 ```
 {
@@ -732,7 +732,7 @@ Array of strings, where each string is delayed a transaction hash.
 sendDelayedTransaction() method sends a specified delayed transaction. 
  
 #### Request
-transactionHashis an existing delayed transaction .
+transactionHash is an existing delayed transaction.
 ```
 {
 	"params": {"transactionHash": "2de0a867705fa4a667239aabe510fffd2624a6f5a578625b3da0165234324429"},
@@ -903,7 +903,7 @@ No output in case of success.
  * array<WalletRpcOrder> transfers;
  * string changeAddress;
  * integer fee;
- * integer anonymity = DEFAULT_ANONYMITY_LEVEL;
+ * integer anonymity;
  * string extra;
  * string paymentId;
  * integer unlockTime;
@@ -915,11 +915,11 @@ No output in case of success.
  * array<string> addresses;
  * array<WalletRpcOrder> transfers;
  * string changeAddress;
- * integer fee = 0;
- * integer anonymity = DEFAULT_ANONYMITY_LEVEL;
+ * integer fee;
+ * integer anonymity;
  * string extra;
  * string paymentId;
- * integer unlockTime = 0;
+ * integer unlockTime;
 ##### Response 
  * string transactionHash;
 

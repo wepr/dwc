@@ -1,6 +1,6 @@
 # Soldo
 
-Soldo is a new experimental coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
+Soldo is a novel coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
 
 Soldo was designed as a light alternative to current Cryptonote-based coins.
 It should be mineable even with low-end PCs, including phones and tablets.
@@ -24,6 +24,8 @@ sldd.exe - coin's daemon
 sldw.exe - wallet app
 
 sldm.exe - CPU solo miner app
+
+sldp.exe - payments app for exchanges
 
 new-wallet.bat - batch file to generate new wallet
 

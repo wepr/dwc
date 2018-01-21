@@ -1,6 +1,7 @@
 Carbon version:
  Build #38
   - minor bugs fixed in RpcServer;
+  - payments-quick-start.md posted;
  Build #37
   - first release rebranded to Soldo;
   - daemon: print_stat command renamed to stat

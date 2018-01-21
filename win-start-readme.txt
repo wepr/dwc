@@ -7,6 +7,7 @@ this archive contains several apps and batch files.
 sldd.exe - coin's daemon
 sldw.exe - wallet app
 sldm.exe - CPU solo miner app
+sldp.exe - payments app for exchanges
 
 new-wallet.bat - batch file to generate new wallet
 daemon.bat - batch file to start coin's daemon

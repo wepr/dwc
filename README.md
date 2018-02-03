@@ -68,10 +68,6 @@ Save.
 
 ### Start the daemon
 
-!!! Clear cache if you used test version of daemon.
-
-To do this, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
-
 Run daemon.bat.
 
 Wait to full sync.
@@ -82,18 +78,35 @@ If still failed - ask for assistance at official Ryver forum - https://zzl.ryver
 
 ### Start mining
 
-If your daemon found any seed and became fully synced - start mining.
+As soon as your daemon found any seed and became fully synced you can start mining.
 
-Start miner.bat.
+If you ready to solo mining you have 3 ways to initiate it [but in any case you must have your daemon started and full synced]:
 
-Another way - just type:
+#### By daemon
+Type command __start_mining__ in the daemon app:
+ - mining will start inside daemon app;
+ - CPU recources will be used at computer where is the daemon located;
+ - demon app must stay worked.
 
 ```
 start_mining your_sld_wallet_address threads_count
 ```
-inside daemon's app window, where your_sld_wallet_address is the same you have in miner.bat file and threads_count - munber of mining threads.
 
+#### By wallet
+Type command __start_mining__ in the WALLET app:
+ - mining will start inside daemon app;
+ - CPU recources will be used at computer where is the daemon located;
+ - demon app must stay worked, wallet app can be closed.
 
+```
+start_mining threads_count
+```
+
+#### By miner
+Use miner app:
+ - CPU recources will be used at computer where is the miner located;
+
+Start miner.bat.
 
 ### Building Soldo
 
@@ -138,6 +151,15 @@ MSBuild Soldo.sln /p:Configuration=release /m
 ```
 The resulting executables can be found in X:\Git\sld\build\src\Release
 
+### Maintenance
+
+Sometimes daemon get stuck and you need to perform some actions.
+
+#### Clear blockchain and other data
+
+To remove Soldo data, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
+
+
 ## Linux Users
 
 ### Building Soldo
@@ -173,3 +195,4 @@ make
 ```
 
 The resulting executables can be found in `sld/build/release/src`.
+

@@ -1637,11 +1637,20 @@ bool Blockchain::check_tx_outputs(const Transaction& tx) const {
 
   return true;
 }
-
+////////////////////////////////////////////
 bool Blockchain::check_block_timestamp_main(const Block& b) {
-  if (b.timestamp > get_adjusted_time() + m_currency.blockFutureTimeLimit()) {
+//$$$$
+	uint64_t height = get_block_height(b);
+	uint64_t ts = m_currency.blockFutureTimeLimit();
+	
+	if (height >= TIMESTAMP_HACK_1_BLOCK_HEIGHT_Z) {
+		ts = TIMESTAMP_HACK_1_FUTURE_TIME_LIMIT_Z;
+	}	
+//$$$$	
+
+  if (b.timestamp > get_adjusted_time() + ts) {
     logger(INFO, BRIGHT_WHITE) <<
-      "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time + 2 hours";
+      "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time " << ts <<" min.";
     return false;
   }
 
@@ -1653,7 +1662,7 @@ bool Blockchain::check_block_timestamp_main(const Block& b) {
 
   return check_block_timestamp(std::move(timestamps), b);
 }
-
+////////////////////////////////////////////////////////////
 bool Blockchain::check_block_timestamp(std::vector<uint64_t> timestamps, const Block& b) {
   if (timestamps.size() < m_currency.timestampCheckWindow()) {
     return true;
@@ -1670,7 +1679,7 @@ bool Blockchain::check_block_timestamp(std::vector<uint64_t> timestamps, const B
 
   return true;
 }
-
+//////////////////////////////////////////////////////////
 bool Blockchain::checkBlockVersion(const Block& b, const Crypto::Hash& blockHash) {
   uint64_t height = get_block_height(b);
   const uint8_t expectedBlockVersion = get_block_major_version_for_height(height);

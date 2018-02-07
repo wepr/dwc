@@ -25,7 +25,7 @@ const uint64_t MONEY_SUPPLY                                  = static_cast<uint6
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1048576; //size of block (bytes) after which reward for block calculated using block size
-const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 32758;  //size of block (bytes) after which reward for block calculated using block size
+const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 1048576;  //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=SLD, 4=ZZP
 
@@ -70,8 +70,8 @@ const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR       = 365 * 24 * 60 * 6
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS     = 1;
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS    = DIFFICULTY_TARGET * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS;
 
-const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = (60 * 60 * 6); //seconds, 6 hours
-const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = (60 * 60 * 24); //seconds, one day
+const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = (60 * 60 * 4); //seconds, 4 hours
+const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = (60 * 60 * 8); //seconds, 8 hours
 const uint64_t CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL = 7;  // CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL * CRYPTONOTE_MEMPOOL_TX_LIVETIME = time to forget tx
 
 const size_t   FUSION_TX_MAX_SIZE                            = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 30 / 100;
@@ -95,6 +95,9 @@ const char     P2P_NET_DATA_FILENAME[]                       = "p2p.data";
 const char     CRYPTONOTE_BLOCKCHAIN_INDICES_FILENAME[]      = "chainidx.dat";
 const char     MINER_CONFIG_FILE_NAME[]                      = "common.json";
 } // parameters
+
+const uint64_t TIMESTAMP_HACK_1_BLOCK_HEIGHT_Z               = 377777;//400000=SLD, 1=ZZP
+const uint64_t TIMESTAMP_HACK_1_FUTURE_TIME_LIMIT_Z          = 60 * 7;//420 seconds/21 block = SLD
 
 const uint64_t START_BLOCK_REWARD                            = (UINT64_C(320000) * parameters::COIN);
 const uint64_t MIN_BLOCK_REWARD                              = (UINT64_C(150) * parameters::COIN);
@@ -132,11 +135,11 @@ const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  512;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  2048;
 
 const size_t   P2P_CONNECTION_MAX_WRITE_BUFFER_SIZE          = 64 * 1024 * 1024; // 64 MB
-const uint32_t P2P_DEFAULT_CONNECTIONS_COUNT                 = 16;
+const uint32_t P2P_DEFAULT_CONNECTIONS_COUNT                 = 8;
 const size_t   P2P_DEFAULT_WHITELIST_CONNECTIONS_PERCENT     = 70;
-const uint32_t P2P_DEFAULT_HANDSHAKE_INTERVAL                = 24;            // seconds
+const uint32_t P2P_DEFAULT_HANDSHAKE_INTERVAL                = 300;           // seconds
 const uint32_t P2P_DEFAULT_PACKET_MAX_SIZE                   = 50000000;      // 50000000 bytes maximum packet size
-const uint32_t P2P_DEFAULT_PEERS_IN_HANDSHAKE                = 256;
+const uint32_t P2P_DEFAULT_PEERS_IN_HANDSHAKE                = 64;
 const uint32_t P2P_DEFAULT_CONNECTION_TIMEOUT                = 5000;          // 5 seconds
 const uint32_t P2P_DEFAULT_PING_CONNECTION_TIMEOUT           = 2000;          // 2 seconds
 const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000; // 2 minutes
@@ -180,6 +183,10 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
 	{ 200000,   "b529eb8efbd46d978d7ce48f18ab07bb1bf6d0e4ddb85adf9808aed781fc045b" },
 	{ 225000,   "6ceb7e3443978adb2356608417bb3dd61184246979d42ad8131ab274b2138a18" },
 	{ 250000,   "9269ae2275b997f5d5d34e14a40c89471cf0f5b127693cdb0ea9b4a58420d966" },
+	{ 275000,   "94fb70d53ce490f44da2d15b5df8f7c498c721504c01c30e4cb6c58df26dafc7" },
+	{ 300000,   "a2e254ad0064addff57808135d42ed84a42c89df93f4f3a7765d0bf0efa9b8fe" },
+	{ 325000,   "a012f24b7f2a9d417a4e79a0634212aba806ec13fd78a9990e36f7339a1c0a7d" },
+	//{ 350000,   "" },
 
 };
 

@@ -751,7 +751,7 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
     "transfer <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [-p payment_id] [-f fee]"
     " - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. "
     "<mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
-  m_consoleHandler.setHandler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
+  m_consoleHandler.setHandler("log", boost::bind(&simple_wallet::set_log, this, _1), "log <level> - Change current log level, <level> is a number 0-4");
   m_consoleHandler.setHandler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet's public address");
   m_consoleHandler.setHandler("paper", boost::bind(&simple_wallet::paper, this, _1), "Show a new paper wallet data");
   m_consoleHandler.setHandler("paper_prn", boost::bind(&simple_wallet::paper_prn, this, _1), "Save a new paper wallet data to a file");
@@ -765,18 +765,18 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::set_log(const std::vector<std::string> &args) {
   if (args.size() != 1) {
-    fail_msg_writer() << "use: set_log <log_level_number_0-4>";
+    fail_msg_writer() << "use: log <log_level_number_0-4>";
     return true;
   }
 
   uint16_t l = 0;
   if (!Common::fromString(args[0], l)) {
-    fail_msg_writer() << "wrong number format, use: set_log <log_level_number_0-4>";
+    fail_msg_writer() << "wrong number format, use: log <log_level_number_0-4>";
     return true;
   }
  
   if (l > Logging::TRACE) {
-    fail_msg_writer() << "wrong number range, use: set_log <log_level_number_0-4>";
+    fail_msg_writer() << "wrong number range, use: log <log_level_number_0-4>";
     return true;
   }
 

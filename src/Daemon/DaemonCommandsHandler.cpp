@@ -160,20 +160,20 @@ bool DaemonCommandsHandler::print_bci(const std::vector<std::string>& args)
 bool DaemonCommandsHandler::set_log(const std::vector<std::string>& args)
 {
   if (args.size() != 1) {
-    std::cout << "use: set_log <log_level_number_0-5>" << ENDL;
+    std::cout << "use: log <log_level_number_0-5>" << ENDL;
     return true;
   }
 
   uint16_t l = 0;
   if (!Common::fromString(args[0], l)) {
-    std::cout << "wrong number format, use: set_log <log_level_number_0-4>" << ENDL;
+    std::cout << "wrong number format, use: log <log_level_number_0-4>" << ENDL;
     return true;
   }
 
   ++l;
 
   if (l > Logging::TRACE) {
-    std::cout << "wrong number range, use: set_log <log_level_number_0-4>" << ENDL;
+    std::cout << "wrong number range, use: log <log_level_number_0-4>" << ENDL;
     return true;
   }
 

@@ -1650,7 +1650,7 @@ bool Blockchain::check_block_timestamp_main(const Block& b) {
 
   if (b.timestamp > get_adjusted_time() + ts) {
     logger(INFO, BRIGHT_WHITE) <<
-      "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time " << ts <<" min.";
+      "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time " << ts <<" secs.";
     return false;
   }
 

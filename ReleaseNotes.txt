@@ -1,6 +1,11 @@
 Nitrogen version:
+ Build #41
+  - added reset param in CreateAddress method @ PayGate;
+ Build #40
+  - rollback changes made @ build #39;
  Build #39
   - strict time sync while mining requred now;
+
 Carbon version:
  Build #38
   - minor bugs fixed in RpcServer;

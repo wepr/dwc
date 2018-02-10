@@ -43,6 +43,11 @@ void CreateAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
   bool hasSecretKey = serializer(spendSecretKey, "spendSecretKey");
   bool hasPublicKey = serializer(spendPublicKey, "spendPublicKey");
 
+//$$$$
+  if (!serializer(reset, "reset"))
+  reset = true;
+//$$$$
+
   if (hasSecretKey && hasPublicKey) {
     //TODO: replace it with error codes
     throw RequestSerializationError();

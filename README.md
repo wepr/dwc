@@ -1,17 +1,17 @@
-# Soldo
+# Darwincoin
 
-Soldo is a novel coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
+Darwincoin is a novel coin based on the modified Cryptonote PoW algorithm called SoftCrypton.
 
-Soldo was designed as a light alternative to current Cryptonote-based coins.
+Darwincoin was designed as a light alternative to current Cryptonote-based coins.
 It should be mineable even with low-end PCs, including phones and tablets.
 Blockchain size and network load plan to stay at reasonable level as well.
-Transfer's tiny flat fee is another key point of Soldo for everyday use.
+Transfer's tiny flat fee is another key point of Darwincoin for everyday use.
 
 ## Windows Users
 
-### Download pre-compiled Soldo apps
+### Download pre-compiled Darwincoin apps
 
-Latest Soldo releases could be found at https://github.com/monselice/sld/releases
+Latest Darwincoin releases could be found at https://github.com/wepr/dwc/releases
 
 Download ZIP-archive and unpack it to a folder (c:\Bin\Bit)
 
@@ -19,13 +19,13 @@ Download ZIP-archive and unpack it to a folder (c:\Bin\Bit)
 
 this archive contains several apps and batch files.
 
-sldd.exe - coin's daemon
+dwcd.exe - coin's daemon
 
-sldw.exe - wallet app
+dwcw.exe - wallet app
 
-sldm.exe - CPU solo miner app
+miner.exe - CPU solo miner app
 
-sldp.exe - payments app for exchanges
+dwcp.exe - payments app for exchanges
 
 new-wallet.bat - batch file to generate new wallet
 
@@ -50,7 +50,7 @@ WARINING - backup *.wallet file ASAP to another pc, remote location of flash dri
 
 ### Edit a miner batch file
 
-Open *.wallet.address file in notepad and copy your SLD address to clipboard [Ctrl+C]
+Open *.wallet.address file in notepad and copy your DWC address to clipboard [Ctrl+C]
 
 Edit miner.bat file, paste just copied address instead of default.
 
@@ -74,8 +74,6 @@ Wait to full sync.
 
 If daemon will not find any seed - check your windows firewall and home/office router NAT and firewall rules.
 
-If still failed - ask for assistance at official Ryver forum - https://zzl.ryver.com/application/signup/members/h07SVMfFAvFRGiZ
-
 ### Start mining
 
 As soon as your daemon found any seed and became fully synced you can start mining.
@@ -89,7 +87,7 @@ Type command __start_mining__ in the daemon app:
  - demon app must stay worked.
 
 ```
-start_mining your_sld_wallet_address threads_count
+start_mining your_dwc_wallet_address threads_count
 ```
 
 #### By wallet
@@ -108,7 +106,7 @@ Use miner app:
 
 Start miner.bat.
 
-### Building Soldo
+### Building DarwinCoin
 
 You have to install follow software:
 
@@ -134,20 +132,20 @@ https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.zip
 
 Download source code from:
 
-https://github.com/monselice/sld
+https://github.com/wepr/dwc/.git
 or clone from Github
-git clone https://github.com/monselice/sld.git sld
+git clone https://github.com/wepr/dwc/.git dwc
 
-To build Soldo apps, change to a directory where this file is located (x:\git\), and run commands:
+To build DarwinCoin apps, change to a directory where this file is located (x:\git\), and run commands:
 
 ```
 x:
-cd x:\git\sld\
+cd x:\git\dwc\
 mkdir build
 cd build
 
 cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT=X:/boost_1_65_1 -DBOOST_LIBRARYDIR=X:/boost_1_65_1/lib64-msvc-14.0 ..
-MSBuild Soldo.sln /p:Configuration=release /m
+MSBuild DarwinCoin.sln /p:Configuration=release /m
 ```
 The resulting executables can be found in X:\Git\sld\build\src\Release
 
@@ -157,12 +155,12 @@ Sometimes daemon get stuck and you need to perform some actions.
 
 #### Clear blockchain and other data
 
-To remove Soldo data, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
+To remove DarwinCoin data, press [Win+R] key, type %APPDATA%, and delete sld folder if you have one.
 
 
 ## Linux Users
 
-### Building Soldo
+### Building DarwinCoin
 
 Dependencies: GCC 4.7.3 or later, CMake 2.8.6 or later, and Boost 1.56 or later.
 
@@ -185,8 +183,8 @@ sudo apt install build-essential
 sudo apt install libboost-dev libboost-all-dev 
 
 cd ~
-git clone https://github.com/monselice/sld.git sld
-cd sld
+git clone https://github.com/wepr/dwc/.git dwc
+cd dwc
 mkdir build
 cd build
 cmake ..
@@ -194,5 +192,5 @@ cd ..
 make
 ```
 
-The resulting executables can be found in `sld/build/release/src`.
+The resulting executables can be found in `dwc/build/release/src`.
 

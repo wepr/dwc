@@ -106,7 +106,7 @@ const uint64_t REWARD_HALVING_INTERVAL                       = (UINT64_C(11000))
 const char     CRYPTONOTE_TICKER[]                           = "DWC";
 const char     CRYPTONOTE_NAME[]                             = "Darwincoin";
 
-const char GENESIS_COINBASE_TX_HEX[] = "010101ff0000210190caf9441a87dfaa925c34860c8fc71807d15491af159d259c1d0c4ab8dba977";
+const char GENESIS_COINBASE_TX_HEX[] = "010101ff00002101e9b1bf454247a7c8455ce7a31920e0b8cb7a532ca1af775ad46265a327631b87";
 
 const uint32_t GENESIS_NONCE                                 = 24;
 const char     GENESIS_WALLET_Z[]                            = "";

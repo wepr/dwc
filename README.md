@@ -132,9 +132,9 @@ https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.zip
 
 Download source code from:
 
-https://github.com/wepr/dwc/.git
+https://github.com/wepr/dwc.git
 or clone from Github
-git clone https://github.com/wepr/dwc/.git dwc
+git clone https://github.com/wepr/dwc.git dwc
 
 To build DarwinCoin apps, change to a directory where this file is located (x:\git\), and run commands:
 
@@ -183,7 +183,7 @@ sudo apt install build-essential
 sudo apt install libboost-dev libboost-all-dev 
 
 cd ~
-git clone https://github.com/wepr/dwc/.git dwc
+git clone https://github.com/wepr/dwc.git dwc
 cd dwc
 mkdir build
 cd build

@@ -2,7 +2,7 @@
 // Copyright (c) 2014-2017 XDN-project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-// SLD and ZZP proposal [--- SLD ---]
+// DWC and ZZP proposal [--- DWC ---]
 
 #pragma once
 
@@ -15,8 +15,8 @@ namespace parameters {
 const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
-const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 117;//Prefix of the wallet address: start with 135=ZZP, 117=SLD
-const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 18;// 4=ZZP, 18=SLD
+const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 117;//Prefix of the wallet address: start with 135=ZZP, 117=DWC
+const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 18;// 4=ZZP, 18=DWC
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 30;
@@ -27,21 +27,21 @@ const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1048576; //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 1048576;  //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
-const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=SLD, 4=ZZP
+const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;//8=DWC, 4=ZZP
 
-const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=ZZP, 100000000=SLD
+const uint64_t COIN                                          = UINT64_C(100000000);// COIN - number of smallest units in one coin: 10000=ZZP, 100000000=DWC
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1);// Transactions with less than this fee wouldn’t be accepted by daemons
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, SLD=2
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(2);//The amount bellow this value will be considered as dust: ZZP=1, DWC=2
 
-const uint64_t REAL_COINS_LIMITED_Z                          = UINT64_C(10000000);//Total amount of coins mineable with full reward: 10000000=SLD,10000000000=ZZP
+const uint64_t REAL_COINS_LIMITED_Z                          = UINT64_C(10000000);//Total amount of coins mineable with full reward: 10000000=DWC,10000000000=ZZP
 const uint64_t MONEY_SUPPLY_MINEABLE_Z                       = REAL_COINS_LIMITED_Z*COIN;//Total amount of atomic units mineable with full reward
-const size_t   RUSH_BLOCKS_Z                                 = 1000;//Premium rewarded blocks count: ZZP=500, SLD=1000
-const uint64_t RUSH_REWARD_Z                                 = (UINT64_C(100)*COIN);//Reward for a premium block: ZZP=200000, SLD=100
-const uint64_t COMMON_REWARD_Z                               = (UINT64_C(1)*COIN);//Reward for an ordinary block: ZZP=1000, SLD=1
-const uint64_t GENESIS_BLOCK_REWARD_Z                        = (UINT64_C(50000)*COIN);//Premine amount, in atomic units: SLD=50000, ZZP=10.000.000
-const size_t   RUSH_REWARD_LOCK_Z                            = 750000;//Premium rewarded blocks lock time: ZZP=20000, SLD=750000
+const size_t   RUSH_BLOCKS_Z                                 = 1000;//Premium rewarded blocks count: ZZP=500, DWC=1000
+const uint64_t RUSH_REWARD_Z                                 = (UINT64_C(100)*COIN);//Reward for a premium block: ZZP=200000, DWC=100
+const uint64_t COMMON_REWARD_Z                               = (UINT64_C(1)*COIN);//Reward for an ordinary block: ZZP=1000, DWC=1
+const uint64_t GENESIS_BLOCK_REWARD_Z                        = (UINT64_C(9999800)*COIN);//Premine amount, in atomic units: DWC=50000, ZZP=10.000.000
+const size_t   RUSH_REWARD_LOCK_Z                            = 750000;//Premium rewarded blocks lock time: ZZP=20000, DWC=750000
 
-const uint64_t DIFFICULTY_TARGET                             = 20;//Difficulty target is an ideal time period between blocks, in seconds. 20=SLD, 720=ZZP
+const uint64_t DIFFICULTY_TARGET                             = 20;//Difficulty target is an ideal time period between blocks, in seconds. 20=DWC, 720=ZZP
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY/12; // blocks
 const size_t   DIFFICULTY_CUT                                = 60;//Timestamps to cut after sorting
@@ -49,11 +49,11 @@ const size_t   DIFFICULTY_LAG                                = 20;//Lag of calcu
 
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
 
-const size_t   DIFFICULTY_FNC_VER                            = 0;//0=SLD, 2=ZZP
-const uint32_t DIFFICULTY_ZAWY_START_BLOCK                   = 24000;//24000=SLD, 1=ZZP
-const size_t   DIFFICULTY_ZAWY_WINDOW                        = 30;//30=SLD, 12=ZZP
+const size_t   DIFFICULTY_FNC_VER                            = 0;//0=DWC, 2=ZZP
+const uint32_t DIFFICULTY_ZAWY_START_BLOCK                   = 24000;//24000=DWC, 1=ZZP
+const size_t   DIFFICULTY_ZAWY_WINDOW                        = 30;//30=DWC, 12=ZZP
 
-const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
+const uint64_t DEPOSIT_MIN_AMOUNT                            = 0.01 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 11000;
 const uint32_t DEPOSIT_MAX_TERM                              = 10 * 12 * 11000;
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 77000;
@@ -96,20 +96,20 @@ const char     CRYPTONOTE_BLOCKCHAIN_INDICES_FILENAME[]      = "chainidx.dat";
 const char     MINER_CONFIG_FILE_NAME[]                      = "common.json";
 } // parameters
 
-const uint64_t TIMESTAMP_HACK_1_BLOCK_HEIGHT_Z               = 377777;//400000=SLD, 1=ZZP
-const uint64_t TIMESTAMP_HACK_1_FUTURE_TIME_LIMIT_Z          = 60 * 7;//420 seconds/21 block = SLD
+const uint64_t TIMESTAMP_HACK_1_BLOCK_HEIGHT_Z               = 1;//400000=DWC, 1=ZZP
+const uint64_t TIMESTAMP_HACK_1_FUTURE_TIME_LIMIT_Z          = 60 * 7;//420 seconds/21 block = DWC
 
 const uint64_t START_BLOCK_REWARD                            = (UINT64_C(320000) * parameters::COIN);
 const uint64_t MIN_BLOCK_REWARD                              = (UINT64_C(150) * parameters::COIN);
 const uint64_t REWARD_HALVING_INTERVAL                       = (UINT64_C(11000));
 
-const char     CRYPTONOTE_TICKER[]                           = "sld";
-const char     CRYPTONOTE_NAME[]                             = "Soldo";
+const char     CRYPTONOTE_TICKER[]                           = "DWC";
+const char     CRYPTONOTE_NAME[]                             = "Darwincoin";
 
-const char GENESIS_COINBASE_TX_HEX[] = "010101ff00002101f0c11cb027ca12cb2b52d82bbe1851432ca1aabc5362375cddfb1c9606a8d135";
+const char GENESIS_COINBASE_TX_HEX[] = "010101ff0000210190caf9441a87dfaa925c34860c8fc71807d15491af159d259c1d0c4ab8dba977";
 
 const uint32_t GENESIS_NONCE                                 = 24;
-const char     GENESIS_WALLET_Z[]                            = "LaFwtcPWr5KhN5q1t5BYjxG6HqYph1x7B49AVdeWUewC1dMrFzXMuuJBo5YHQQRqQy7wRWQnctEcDY1eRQn76APPQycHeuj";
+const char     GENESIS_WALLET_Z[]                            = "";
 
 //CRYPTONOTE_NETWORK is defined @ \P2p\P2pNetworks.h
 //CRYPTONOTE_NETWORK = 24d91a1b-3aa0-6ddf-3eab-e0b4fb48f9e9
@@ -128,8 +128,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        =  10000;  //by def
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  128;    //by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         =  1000;
 
-const int      P2P_DEFAULT_PORT                              = 33711;//ZZP=33721, SLD=33711
-const int      RPC_DEFAULT_PORT                              = 33712;//ZZP=33722, SLD=33712
+const int      P2P_DEFAULT_PORT                              = 17272;//ZZP=33721, DWC=33711
+const int      RPC_DEFAULT_PORT                              = 17273;//ZZP=33722, DWC=33712
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  512;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  2048;
@@ -147,12 +147,7 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;          //
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "ab99e468743e62c86e6d07a0db4f26db5fa6c46dc2ee899b459b3a205385d460";
 
 const std::initializer_list<const char*> SEED_NODES = {
-	"s1.soldo.in:33711",  
-	"s2.soldo.in:33711",  
-	"s3.soldo.in:33711",  
-	"s4.soldo.in:33711",  
-	"s5.soldo.in:33711",  
-	"s6.soldo.in:33711",  
+	"127.0.0.1:17272",  
 };
 
 struct CheckpointData {
@@ -167,29 +162,7 @@ __attribute__((unused))
 // You may add here other checkpoints using the following format:
 // {<block height>, "<block hash>"},
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
-	{ 10,       "9d9c8d35abe3df6d6b568ceaec0484ab4de90b117f449e3f20268d4c5157cd3c" },
-	{ 500,      "6484b98d348a8bb912ccac1f57bf489e79b2e7f182fbcd85f9e6fb6cb9b75020" },
-	{ 1000,     "e71a72d72446b61b70fb11bc4b9f5a9b4acbea772522876181aaab6cfeb9f8b3" },
-	{ 5000,     "8c25c2783910ede539fa575edf7dbd8aae87e851081a163f51f4af381a3dc488" },
-	{ 10000,    "9f5a62a04e0dea35f922c9c46240bc26d766c3cf9d45df62cc1dcb3a2b296042" },
-	{ 20000,    "338b94eea1c836545b9ac52635bf56e793c4d7087327b8344f801d19d244efdc" },
-	{ 24000,    "e191d6292e928410481ed6209c4d492e0f0eff82723f9a18031f85d3955dffc9" },
-	{ 50000,    "d77bbc550a5e08502e8bd58e6cd5f0ec24ab00179135cd4eb99a9d7c74d8cc4e" },
-	{ 75000,    "75a833470bff666bc414a5803ecd9bf1a7c19b75049ed6c4d5903690210f66fd" },
-	{ 100000,   "2a9f74669832fe2e2a14129d4df423d8d2fa1547a0a24358a51fc71b810ff641" },
-	{ 125000,   "776a8b2b40cf5297375b5813fde5480c6ae8525db35fad73b7b523d6d67771c8" },
-	{ 150000,   "b8d953e0b5d81f8a2b0db3d3881107ec676d72e0368c88c25085a913830a6656" },
-	{ 175000,   "6c8b5543f94a9fbc3914fdfd0a58277d8ff1879b1f173db6890f99425fecc3aa" },
-	{ 200000,   "b529eb8efbd46d978d7ce48f18ab07bb1bf6d0e4ddb85adf9808aed781fc045b" },
-	{ 225000,   "6ceb7e3443978adb2356608417bb3dd61184246979d42ad8131ab274b2138a18" },
-	{ 250000,   "9269ae2275b997f5d5d34e14a40c89471cf0f5b127693cdb0ea9b4a58420d966" },
-	{ 275000,   "94fb70d53ce490f44da2d15b5df8f7c498c721504c01c30e4cb6c58df26dafc7" },
-	{ 300000,   "a2e254ad0064addff57808135d42ed84a42c89df93f4f3a7765d0bf0efa9b8fe" },
-	{ 325000,   "a012f24b7f2a9d417a4e79a0634212aba806ec13fd78a9990e36f7339a1c0a7d" },
-	{ 350000,   "aecc323b82167e13b6d0c26493af87f9b97fbbc6a5cc0e93ad46a388d0889ac0" },
-	{ 377777,   "fda74af4c706dd90c3b1c229e844cb95c2f6247f412e90971355f41257599172" },
-	{ 400000,   "9a7d7ac7c224ff4f9c0d7c5e8a3a749934b59747ddac04292253adb4b7f88f90" },
-	{ 425000,   "a4d8679422aee196f51126bde457402b031f9abce3688980f5239b85ad515296" },
+
 
 };
 
